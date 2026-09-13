@@ -143,7 +143,7 @@ export function AdminLogin() {
               <input
                 id="admin-email" type="email" autoComplete="username" required
                 className="field" value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@primeestates.in"
+                placeholder="you@example.com"
               />
             </div>
 

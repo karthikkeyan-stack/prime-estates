@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    /* Guard against any child causing sideways scroll on mobile */
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  body {
+    @apply bg-background font-body-md text-body-md text-on-surface antialiased;
+    overscroll-behavior-y: none;
+  }
+  * {
+    min-width: 0;
+  }
+  /* Visible, on-brand focus ring for keyboard users only */
+  :focus-visible {
+    outline: 2px solid #9b4500;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  ::selection {
+    background: #141b2b;
+    color: #fff;
+  }
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply max-w-shell mx-auto px-gutter-mobile lg:px-gutter-desktop w-full;
+  }
+
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  /* Tabular figures for all financial + dimensional metrics (DESIGN.md) */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* ---- Buttons: exact Stitch component spec ---- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-space-xs rounded-lg font-title-md text-title-md
+           transition-all duration-200 disabled:opacity-60 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-primary-container text-on-primary px-space-lg py-3.5 hover:-translate-y-px
+           hover:shadow-lvl2 active:translate-y-0;
+  }
+  .btn-bronze {
+    @apply btn bg-secondary text-on-secondary px-space-lg py-3.5 shadow-lvl1
+           hover:bg-on-secondary-container hover:-translate-y-px active:translate-y-0;
+  }
+  .btn-whatsapp {
+    @apply btn bg-on-tertiary-fixed-variant text-on-tertiary px-space-lg py-3.5 shadow-lvl1
+           hover:bg-on-tertiary-fixed hover:-translate-y-px active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply btn bg-surface-container-lowest text-on-surface border border-outline-variant px-space-lg py-3.5
+           hover:bg-background hover:border-on-surface;
+  }
+  .btn-ghost {
+    @apply btn text-on-surface-variant px-space-md py-2.5 hover:bg-surface-container hover:text-on-surface;
+  }
+  .btn-sm {
+    @apply px-space-md py-2 text-label-ui font-label-ui;
+  }
+
+  /* ---- Form controls: 48px min height per DESIGN.md ---- */
+  .field {
+    @apply w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-space-md py-3
+           font-body-md text-body-md text-on-surface min-h-[48px]
+           focus:outline-none focus:border-on-surface focus:border-[1.5px]
+           placeholder:text-outline transition-colors;
+  }
+  .field-error {
+    @apply border-error focus:border-error;
+  }
+  .label {
+    @apply block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1.5;
+  }
+
+  /* ---- Chips ---- */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-outline-variant bg-surface-container-lowest
+           px-3.5 py-1.5 font-label-ui text-label-ui text-on-surface-variant transition-all
+           hover:border-on-surface hover:text-on-surface whitespace-nowrap;
+  }
+  .chip-active {
+    @apply bg-primary-container text-on-primary border-primary-container hover:text-on-primary;
+  }
+
+  .card {
+    @apply bg-surface-container-lowest rounded-xl border border-[#e7e5e4] shadow-lvl1;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 font-label-caps text-label-caps uppercase;
+  }
+  /* Heritage verification badge (bronze tint per DESIGN.md) */
+  .badge-heritage {
+    @apply badge border;
+    background: #fef3c7;
+    border-color: #92400e;
+    color: #92400e;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-surface-container rounded-lg;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    animation: shimmer 1.6s infinite;
+  }
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .prose-estate p {
+    @apply font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-space-md;
+  }
+  .prose-estate p:last-child {
+    @apply mb-0;
+  }
+}
+
+/* Scroll-reveal: elements start hidden, .is-visible is added by IntersectionObserver */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

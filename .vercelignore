@@ -1,0 +1,9 @@
+# Vercel installs dependencies itself; uploading them wastes minutes and
+# can shadow the platform's own resolution.
+node_modules
+.git
+dist
+data
+.qa
+*.log
+*.tsbuildinfo

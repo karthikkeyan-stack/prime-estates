@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-const BASE='http://localhost:4178';
+const BASE=process.env.BASE || 'http://localhost:4178';
 const browser=await chromium.launch();
 async function swipe(page,x,y0,y1,steps=12){
   const cdp=await page.context().newCDPSession(page);

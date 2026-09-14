@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-const BASE='http://localhost:4178';
+const BASE=process.env.BASE || 'http://localhost:4178';
 const EMAIL=process.env.ADMIN_EMAIL, PASS=process.env.ADMIN_PASSWORD;
 if (!EMAIL || !PASS) throw new Error('Set ADMIN_EMAIL and ADMIN_PASSWORD in the environment.');
 const browser = await chromium.launch();

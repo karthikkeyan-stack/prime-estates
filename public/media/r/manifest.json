@@ -1,0 +1,91 @@
+{
+  "about-office": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "cat-plots": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "cat-showroom": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "hero-estate": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "prop-aethelgard-villa": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "prop-anamalai-farmstead": {
+    "width": 1376,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true
+    }
+  },
+  "prop-apex-commercial": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "prop-aura-penthouse": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "prop-balfour-tea-estate": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  },
+  "prop-kensington-manor": {
+    "width": 1408,
+    "height": 768,
+    "sizes": {
+      "400": true,
+      "800": true,
+      "1408": true
+    }
+  }
+}

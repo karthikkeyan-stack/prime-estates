@@ -14,7 +14,8 @@ export default function NotFound() {
         <div className="relative rounded-2xl overflow-hidden bg-primary-container text-on-primary px-space-lg py-space-xl lg:py-20 text-center">
           <div
             className="absolute inset-0 bg-cover bg-center opacity-25 mix-blend-luminosity"
-            style={{ backgroundImage: "url('/media/hero-estate.jpg')" }}
+            /* decorative background: use the optimised derivative, not the 225 KB original */
+            style={{ backgroundImage: "image-set(url('/media/r/hero-estate-800.avif') type('image/avif'), url('/media/r/hero-estate-800.webp') type('image/webp'), url('/media/r/hero-estate-800.jpg') type('image/jpeg'))" }}
             aria-hidden="true"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/80 to-primary-container/50" aria-hidden="true" />

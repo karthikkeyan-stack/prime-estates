@@ -53,12 +53,35 @@ export default function Home() {
 
       {/* ============ 1. CINEMATIC HERO ============ */}
       <section className="relative w-full -mt-[7.25rem] pt-[11rem] pb-32 lg:pb-40 overflow-hidden bg-primary-container">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105"
-          style={{ backgroundImage: "url('/media/hero-estate.jpg')" }}
-          role="img"
-          aria-label="Contemporary luxury estate villa at dusk with reflection pool"
-        />
+        {/*
+          The hero is the LCP element, so it is a real <picture> rather than a
+          CSS background-image: backgrounds cannot use srcset, are discovered
+          late by the preload scanner, and cannot be given fetchpriority.
+          AVIF at the right width turns a 225 KB download into roughly 20 KB.
+        */}
+        <picture>
+          <source
+            type="image/avif"
+            srcSet="/media/r/hero-estate-400.avif 400w, /media/r/hero-estate-800.avif 800w, /media/r/hero-estate-1408.avif 1408w"
+            sizes="100vw"
+          />
+          <source
+            type="image/webp"
+            srcSet="/media/r/hero-estate-400.webp 400w, /media/r/hero-estate-800.webp 800w, /media/r/hero-estate-1408.webp 1408w"
+            sizes="100vw"
+          />
+          <img
+            src="/media/r/hero-estate-1408.jpg"
+            srcSet="/media/r/hero-estate-400.jpg 400w, /media/r/hero-estate-800.jpg 800w, /media/r/hero-estate-1408.jpg 1408w"
+            sizes="100vw"
+            alt="Contemporary luxury estate villa at dusk with reflection pool"
+            width={1408}
+            height={768}
+            decoding="async"
+            {...{ fetchpriority: 'high' }}
+            className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity scale-105"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/85 to-primary-container/60" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" aria-hidden="true" />
 

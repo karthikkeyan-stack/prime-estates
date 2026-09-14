@@ -9,7 +9,12 @@
     "preview": "node server/prod.mjs",
     "start": "node server/prod.mjs",
     "seed": "node server/seed.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "assets:icons": "node .qa/gen-icons.mjs",
+    "assets:images": "node .qa/gen-images.mjs",
+    "assets:fonts": "node .qa/fetch-fonts.mjs && node .qa/subset-fonts.mjs",
+    "assets": "npm run assets:icons && npm run assets:images && npm run assets:fonts",
+    "perf": "node .qa/perf.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.2.17",

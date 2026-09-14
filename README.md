@@ -23,9 +23,10 @@ districts of Tirupur, Pollachi, Ooty, Erode and Palakkad.
 7. [Moving to Supabase](#7-moving-to-supabase)
 8. [Deployment](#8-deployment)
 9. [Testing](#9-testing)
-10. [Security notes](#10-security-notes)
-11. [Replacing the demo data](#11-replacing-the-demo-data)
-12. [Troubleshooting](#12-troubleshooting)
+10. [Performance](#10-performance)
+11. [Security notes](#11-security-notes)
+12. [Replacing the demo data](#12-replacing-the-demo-data)
+13. [Troubleshooting](#13-troubleshooting)
 
 ---
 
@@ -447,7 +448,97 @@ Current status: **80/80**, **all routes clean**, **50/50**.
 
 ---
 
-## 10. Security notes
+## 10. Performance
+
+Performance was treated as a feature, measured on **Slow 4G with 4x CPU throttling**
+(a mid-range Android phone on an average Indian mobile network), not on a desktop
+connection.
+
+### Results
+
+| Route | LCP | CLS | Requests | Transferred |
+| --- | --- | --- | --- | --- |
+| `/` | 1.32 s | 0.0007 | 16 | 206 KB |
+| `/properties` | 1.95 s | 0 | 17 | 201 KB |
+| `/properties?type=villa&listing=sale` | 1.82 s | 0 | 15 | 172 KB |
+| `/properties/:slug` | 1.82 s | 0 | 15 | 194 KB |
+| `/about` | 1.39 s | 0 | 12 | 173 KB |
+| `/gallery` | 1.64 s | 0 | 16 | 201 KB |
+| `/contact` | 1.38 s | 0 | 10 | 159 KB |
+
+Homepage before this work: **LCP 3.14 s, 672 KB**. After: **1.32 s, 206 KB**.
+
+### The five things that actually mattered
+
+1. **A 3.9 MB icon font.** The Material Symbols *variable font* was being downloaded to
+   render 77 glyphs. Those glyphs are now inlined as SVG path data
+   (`src/components/icon-paths.ts`, ~26 KB of source, tree-shaken and compressed). No
+   request, no FOUT. This was by far the largest single win.
+2. **Full-resolution images on phone-sized cards.** A 390px-wide card was downloading a
+   1408px JPEG. `.qa/gen-images.mjs` generates AVIF/WebP/JPEG at 400/800/1408px and
+   `<Img>` emits a `<picture>` with proper `sizes`. A card image went **266 KB -> 12 KB**.
+3. **Google Maps loading eagerly.** The embed pulled ~1.6 MB of third-party JavaScript
+   across ~19 requests on both the contact and property detail pages — `loading="lazy"`
+   does not help when the map is inside the first viewport on mobile. It is now a
+   click-to-load facade (`MapEmbed`). Detail page: **641 KB -> 194 KB**.
+4. **Layout shift.** Property detail measured **CLS 0.83** because the loading skeleton
+   had a different wrapper to the loaded page, so the entire column changed width and
+   position. Skeletons now mirror the real structure, and asynchronous text
+   (`settings.description`, gallery filter chips) has its height reserved. Every page is
+   now **CLS 0**.
+5. **Fonts.** Self-hosted (no third-party DNS + TLS handshake), variable fonts instead of
+   6 static weights, latin subset only, and **metric-matched fallbacks** with
+   `size-adjust` so the swap does not re-wrap text. 146 KB across 6 files -> 81 KB across 3.
+
+### Database
+
+Measured with **2,218 properties and 1,500 enquiries** loaded (`.qa/bulk-load.mjs`):
+
+| Query | Before | After |
+| --- | --- | --- |
+| Default catalogue sort | 2.586 ms (seq scan + sort) | **0.044 ms** (index scan) |
+| Substring search | 1.445 ms (seq scan) | **0.097 ms** (trigram index) |
+
+The fix was partial indexes matching the exact predicate every public query uses
+(`published = true AND status NOT IN ('draft','archived')`), so Postgres walks the index
+in sort order and stops at `LIMIT` with no sort step — plus a `pg_trgm` GIN index,
+because the existing full-text index cannot serve `ILIKE '%foo%'`.
+
+Every API endpoint responds in **1-6 ms** at that volume, and page 100 is as fast as
+page 1. Admin endpoints stay at 3-6 ms.
+
+### Architecture guarantees (verified, not assumed)
+
+- The browser never receives more than one page of properties. `limit` is clamped
+  server-side: a hostile `?limit=5000` returns 48 rows.
+- List responses omit the `description` column — 25 fields, not the full record.
+- Filtering, sorting, searching and pagination all run in SQL. Nothing is filtered in
+  JavaScript.
+- **Admin JavaScript never loads on public pages** (verified per-route: 0 admin chunks).
+- The admin property list renders 12 rows out of 2,218 — pagination is real at the UI
+  layer, not just the API.
+- Search inputs are debounced (400 ms); no duplicate requests were observed on any page.
+- View counting is fire-and-forget with a swallowed error, so analytics can never block
+  or break a page render.
+- Animations use `transform`/`opacity` only, and `prefers-reduced-motion` is respected.
+
+### Regenerating assets
+
+Generated assets are **committed**, so Vercel builds stay fast and need no image or font
+toolchain. Re-run these only when the source assets change:
+
+```bash
+npm run assets:icons     # rescans src/ for icon names, regenerates icon-paths.ts
+npm run assets:images    # AVIF/WebP/JPEG derivatives for public/media
+npm run assets:fonts     # re-download + re-subset the webfonts
+npm run assets           # all three
+```
+
+To re-measure: `npm run perf -- /properties slow` (requires a running server).
+
+---
+
+## 11. Security notes
 
 - **Passwords** — hashed with `scrypt` and a per-user random salt; verified in constant
   time. Plaintext is never stored or logged.
@@ -468,7 +559,7 @@ Current status: **80/80**, **all routes clean**, **50/50**.
 
 ---
 
-## 11. Replacing the demo data
+## 12. Replacing the demo data
 
 The 18 seeded properties are **demonstration data** to show the system working. They are
 not represented as listings owned by or available through Prime Estates, and the site
@@ -488,7 +579,7 @@ database.
 
 ---
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 **`42601: cannot insert multiple commands into a prepared statement`**
 Multi-statement SQL must go through `exec()`, not `query()`. `server/db.mjs` already

@@ -37,6 +37,7 @@ export function PropertyCard({
             alt={alt}
             className="h-full min-h-[150px]"
             imgClassName="group-hover:scale-105 transition-transform duration-700 ease-out"
+            sizes="(max-width: 767px) 40vw, 220px"
           />
           {property.featured && (
             <span className="absolute top-2 left-2 badge bg-secondary text-on-secondary shadow-sm !px-2 !py-0.5">

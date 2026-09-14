@@ -299,7 +299,7 @@ export default function Properties() {
               >
                 {SORTS.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
-              <Icon name="expand_more" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
+              <Icon name="keyboard_arrow_down" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
             </div>
             <button
               onClick={() => setDrawerOpen(true)}

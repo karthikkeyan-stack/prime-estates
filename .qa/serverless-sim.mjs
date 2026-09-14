@@ -8,6 +8,7 @@
  * WITHOUT deploying. Run: node .qa/serverless-sim.mjs
  */
 import http from 'node:http';
+import zlib from 'node:zlib';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,13 +29,45 @@ const TYPES = {
   '.xml': 'application/xml',
 };
 
-function serveStatic(res, file) {
-  const body = fs.readFileSync(file);
-  res.writeHead(200, {
+// Mirrors the Cache-Control rules in vercel.json so the simulation reports
+// the same caching behaviour the real CDN would.
+const IMMUTABLE = [
+  `${path.sep}assets${path.sep}`,
+  `${path.sep}fonts${path.sep}`,
+  `${path.sep}media${path.sep}r${path.sep}`,
+];
+
+// Vercel's CDN brotli/gzips text responses automatically. The simulator does
+// the same, otherwise measurements here are pessimistic by ~3x on JS/CSS.
+const COMPRESSIBLE = /\.(js|css|html|json|svg|xml|txt|map)$/i;
+
+function serveStatic(res, file, req) {
+  let body = fs.readFileSync(file);
+  const immutable = IMMUTABLE.some((seg) => file.includes(seg));
+  const media = file.includes(`${path.sep}media${path.sep}`);
+  const headers = {
     'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
-    'Cache-Control': file.includes(`${path.sep}assets${path.sep}`)
-      ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate',
-  });
+    'Cache-Control': immutable
+      ? 'public, max-age=31536000, immutable'
+      : media
+        ? 'public, max-age=2592000'
+        : 'public, max-age=0, must-revalidate',
+  };
+  const accept = String(req?.headers?.['accept-encoding'] || '');
+  if (COMPRESSIBLE.test(file)) {
+    if (/\bbr\b/.test(accept)) {
+      body = zlib.brotliCompressSync(body, {
+        params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 },
+      });
+      headers['Content-Encoding'] = 'br';
+    } else if (/\bgzip\b/.test(accept)) {
+      body = zlib.gzipSync(body, { level: 6 });
+      headers['Content-Encoding'] = 'gzip';
+    }
+    headers.Vary = 'Accept-Encoding';
+  }
+  headers['Content-Length'] = body.length;
+  res.writeHead(200, headers);
   res.end(body);
 }
 
@@ -51,7 +84,7 @@ const server = http.createServer((req, res) => {
   for (const base of [DIST, path.join(ROOT, 'public')]) {
     const candidate = path.join(base, pathname);
     if (candidate.startsWith(base) && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-      return serveStatic(res, candidate);
+      return serveStatic(res, candidate, req);
     }
   }
 
@@ -61,7 +94,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
     return res.end('dist/index.html missing — run `npm run build` first');
   }
-  return serveStatic(res, index);
+  return serveStatic(res, index, req);
 });
 
 server.listen(PORT, '0.0.0.0', () => {

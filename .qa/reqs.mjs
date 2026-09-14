@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const BASE='http://localhost:4010';
+const b=await chromium.launch(); const page=await (await b.newContext({viewport:{width:390,height:844}})).newPage();
+const seen=[];
+page.on('request',r=>{ if(['fetch','xhr'].includes(r.resourceType())) seen.push(r.url().replace(BASE,'')); });
+await page.goto(BASE+(process.argv[2]||'/'),{waitUntil:'networkidle',timeout:60000});
+await page.waitForTimeout(1200);
+console.log(`\n${process.argv[2]||'/'} — ${seen.length} API calls:`);
+const counts={}; seen.forEach(u=>counts[u]=(counts[u]||0)+1);
+for(const [u,n] of Object.entries(counts)) console.log(`  ${n>1?'DUPLICATE x'+n:'          '}  ${u}`);
+await b.close();

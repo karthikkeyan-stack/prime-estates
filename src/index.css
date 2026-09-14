@@ -45,22 +45,8 @@
     @apply max-w-shell mx-auto px-gutter-mobile lg:px-gutter-desktop w-full;
   }
 
-  .material-symbols-outlined {
-    font-family: 'Material Symbols Outlined';
-    font-weight: normal;
-    font-style: normal;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-    user-select: none;
-  }
+  /* Icons are inline SVG (src/components/icon-paths.ts), not a webfont.
+     The Material Symbols variable font was 3.9 MB for the 60 glyphs used. */
 
   /* Tabular figures for all financial + dimensional metrics (DESIGN.md) */
   .tabular {

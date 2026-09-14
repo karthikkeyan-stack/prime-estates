@@ -90,7 +90,7 @@ export function SearchBar({
                 </option>
               ))}
             </select>
-            <Icon name="expand_more" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
+            <Icon name="keyboard_arrow_down" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
           </div>
         </div>
 
@@ -106,7 +106,7 @@ export function SearchBar({
                 <option key={c.slug} value={c.slug}>{c.name}</option>
               ))}
             </select>
-            <Icon name="expand_more" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
+            <Icon name="keyboard_arrow_down" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export function SearchBar({
             <select id="hero-budget" className={selectCls} value={budget} onChange={(e) => setBudget(e.target.value)}>
               {BUDGETS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
             </select>
-            <Icon name="expand_more" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
+            <Icon name="keyboard_arrow_down" size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
           </div>
         </div>
 
@@ -136,7 +136,7 @@ export function SearchBar({
               <option value="4">4+</option>
               <option value="5">5+</option>
             </select>
-            <Icon name="expand_more" size={18} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
+            <Icon name="keyboard_arrow_down" size={18} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
           </div>
         </div>
 

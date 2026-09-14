@@ -6,12 +6,12 @@ import { useSettings } from '../lib/store';
 import { Seo } from '../lib/seo';
 import { PropertyCard } from '../components/PropertyCard';
 import { EnquiryForm } from '../components/EnquiryForm';
-import { EmptyState, Icon, Img } from '../components/ui';
+import { EmptyState, Icon, Img, MapEmbed } from '../components/ui';
 
 /* ================================ ABOUT ================================ */
 
 export function About() {
-  const { settings, tel } = useSettings();
+  const { settings, tel, loading: loadingSettings } = useSettings();
   const ref = useRevealGroup<HTMLDivElement>([]);
 
   return (
@@ -40,7 +40,23 @@ export function About() {
               A Coimbatore practice, built on local knowledge.
             </h1>
             <div className="prose-estate">
-              <p>{settings.description}</p>
+              {/*
+                settings.description arrives with the /api/settings fetch. Left
+                unreserved it expands from 0 to ~208px on a phone and shoves the
+                rest of the column down — the single largest shift on this page.
+                min-h holds the space; the skeleton makes the wait intentional.
+              */}
+              <div className="min-h-[13rem] sm:min-h-[9rem]">
+                {loadingSettings
+                  ? (
+                    <div className="space-y-2 pt-1" aria-hidden="true">
+                      {[100, 96, 99, 92, 70].map((w, i) => (
+                        <div key={i} className="h-4 skeleton rounded" style={{ width: `${w}%` }} />
+                      ))}
+                    </div>
+                  )
+                  : <p>{settings.description}</p>}
+              </div>
               <p>
                 Our work covers both sides of a transaction: helping buyers and tenants find the right
                 property, and helping owners present and place theirs. Because we operate across
@@ -283,12 +299,28 @@ export function Gallery() {
         <h1 className="font-headline-lg text-headline-lg-mobile sm:text-display-hero text-on-surface font-semibold mt-1 mb-space-md">
           Gallery
         </h1>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <button key={c} onClick={() => setFilter(c)} className={`chip ${filter === c ? 'chip-active' : ''}`} aria-pressed={filter === c}>
-              {c}
-            </button>
-          ))}
+        {/*
+          The category chips only exist once the gallery has loaded. Without a
+          reserved height this row appears from nothing and pushes the grid
+          below it down — a visible jump and a measurable layout shift.
+          min-h matches one row of chips.
+        */}
+        {/*
+          Reserve the real height of the chip row. On a 390px phone the
+          categories wrap to three lines (112px); from `sm:` up they fit on
+          one (36px). Measured, not guessed — an under-reserved box is what
+          caused the remaining shift here.
+        */}
+        <div className="flex flex-wrap gap-2 min-h-[7rem] sm:min-h-[2.25rem] content-start">
+          {gallery.loading
+            ? [40, 72, 56, 64, 48, 60].map((w, i) => (
+                <div key={i} className="h-9 skeleton rounded-full" style={{ width: `${w}px` }} aria-hidden="true" />
+              ))
+            : categories.map((c) => (
+                <button key={c} onClick={() => setFilter(c)} className={`chip ${filter === c ? 'chip-active' : ''}`} aria-pressed={filter === c}>
+                  {c}
+                </button>
+              ))}
         </div>
       </section>
 
@@ -479,13 +511,10 @@ export function Contact() {
       <section className="shell">
         <div className="card overflow-hidden">
           <div className="aspect-[16/9] sm:aspect-[21/9] bg-surface-container">
-            <iframe
+            <MapEmbed
               title={`Map of ${settings.city}`}
               src={mapSrc}
-              className="w-full h-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
+              label={settings.address || settings.city}
             />
           </div>
           {settings.maps_url && (

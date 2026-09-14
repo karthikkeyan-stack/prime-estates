@@ -9,7 +9,7 @@ import { useSettings } from '../lib/store';
 import { Seo } from '../lib/seo';
 import { PropertyCard } from '../components/PropertyCard';
 import { EnquiryForm } from '../components/EnquiryForm';
-import { Icon, Img, Spinner } from '../components/ui';
+import { Icon, Img, MapEmbed, Spinner } from '../components/ui';
 import NotFound from './NotFound';
 
 export default function PropertyDetail() {
@@ -50,21 +50,36 @@ export default function PropertyDetail() {
   if (notFound) return <NotFound />;
 
   if (loading || !property) {
+    // The skeleton deliberately mirrors the real page's block heights. An
+    // undersized skeleton is worse than none: the page grows when content
+    // arrives and everything below it jumps, which is a large layout shift.
+    // The bottom padding matches the sticky mobile action bar so the page
+    // does not lurch when that bar mounts.
+    // The outer wrapper must match the loaded page's wrapper exactly
+    // (`pt-space-lg pb-28 lg:pb-space-xl`), and the inner content must sit
+    // inside `.shell` just as it does when loaded. Earlier this component put
+    // `.shell` on the outer element, so the whole page changed width and
+    // offset when real content arrived — a 0.83 CLS all by itself.
     return (
-      <div className="shell pt-space-xl pb-space-xl">
-        <div className="h-4 w-64 skeleton mb-6" />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
-          <div className="lg:col-span-8 space-y-4">
-            <div className="aspect-[16/10] skeleton rounded-xl" />
-            <div className="h-10 w-3/4 skeleton" />
-            <div className="h-5 w-1/2 skeleton" />
-            <div className="h-32 w-full skeleton rounded-xl" />
+      <div className="pt-space-lg pb-28 lg:pb-space-xl">
+        <div className="shell">
+          <div className="h-4 w-64 skeleton mb-6" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg lg:gap-space-xl items-start">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="aspect-[16/10] skeleton rounded-xl" />
+              <div className="grid grid-cols-4 gap-2">
+                {[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[4/3] skeleton rounded-lg" />)}
+              </div>
+              <div className="h-10 w-3/4 skeleton" />
+              <div className="h-5 w-1/2 skeleton" />
+              <div className="h-24 w-full skeleton rounded-xl" />
+            </div>
+            <div className="lg:col-span-4 space-y-4">
+              <div className="h-96 skeleton rounded-xl" />
+            </div>
           </div>
-          <div className="lg:col-span-4">
-            <div className="h-96 skeleton rounded-xl" />
-          </div>
+          <div className="sr-only" role="status">Loading property</div>
         </div>
-        <div className="sr-only" role="status">Loading property</div>
       </div>
     );
   }
@@ -190,7 +205,13 @@ export default function PropertyDetail() {
                         i === active ? 'ring-2 ring-secondary ring-offset-2' : 'opacity-65 hover:opacity-100'
                       }`}
                     >
-                      <Img src={img.url} alt={img.alt || `${property.title} thumbnail ${i + 1}`} className="w-full h-full" />
+                      <Img
+                        src={img.url}
+                        alt={img.alt || `${property.title} thumbnail ${i + 1}`}
+                        className="w-full h-full"
+                        /* thumbnails are ~90-150px: never fetch a card-sized file */
+                        sizes="150px"
+                      />
                     </button>
                   ))}
                 </div>
@@ -286,13 +307,10 @@ export default function PropertyDetail() {
               <h2 id="map-heading" className="font-headline-sm text-headline-sm text-on-surface mb-space-sm">Location</h2>
               <div className="card overflow-hidden">
                 <div className="aspect-[16/9] sm:aspect-[21/9] bg-surface-container">
-                  <iframe
+                  <MapEmbed
                     title={`Map of ${property.location}`}
                     src={mapSrc}
-                    className="w-full h-full border-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    allowFullScreen
+                    label={[property.area_locality, property.city].filter(Boolean).join(', ')}
                   />
                 </div>
                 <div className="p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">

@@ -1,3 +1,4 @@
+import { Icon } from '../components/ui';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getSettings } from './api';
 import type { SiteSettings } from './types';
@@ -114,16 +115,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 : t.tone === 'info' ? 'bg-primary-container text-on-primary'
                 : 'bg-on-tertiary-fixed-variant text-on-tertiary'}`}
           >
-            <span className="material-symbols-outlined text-[20px] shrink-0" aria-hidden="true">
-              {t.tone === 'error' ? 'error' : t.tone === 'info' ? 'info' : 'check_circle'}
-            </span>
+            <Icon
+              name={t.tone === 'error' ? 'error' : t.tone === 'info' ? 'info' : 'check_circle'}
+              size={20}
+              className="shrink-0"
+            />
             <span className="font-body-md text-body-md flex-1">{t.message}</span>
             <button
               onClick={() => dismiss(t.id)}
-              className="material-symbols-outlined text-[18px] opacity-70 hover:opacity-100 shrink-0"
+              className="opacity-70 hover:opacity-100 shrink-0"
               aria-label="Dismiss notification"
             >
-              close
+              <Icon name="close" size={18} />
             </button>
           </div>
         ))}

@@ -20,7 +20,13 @@ const NAV = [
 export function Logo({ inverse = false }: { inverse?: boolean }) {
   const { settings } = useSettings();
   return (
-    <Link to="/" className="flex items-center gap-2.5 shrink-0 group" aria-label={`${settings.business_name} home`}>
+    <Link
+      to="/"
+      /* min-w-0 lets the logo yield width below ~360px so the menu button can
+         never be pushed off-screen; it keeps its natural size above that. */
+      className="flex items-center gap-2.5 min-w-0 group"
+      aria-label={`${settings.business_name} home`}
+    >
       <span
         className={`w-9 h-9 rounded-lg grid place-items-center shrink-0 transition-colors
           ${inverse ? 'bg-surface-bright/10' : 'bg-primary-container'}`}

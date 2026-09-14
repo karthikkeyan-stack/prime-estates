@@ -11,13 +11,26 @@
   body {
     margin: 0;
     padding: 0;
-    /* Guard against any child causing sideways scroll on mobile */
+  }
+  /*
+   * Horizontal-overflow guard lives on <html> ONLY — never on <body>.
+   *
+   * `overflow-x: hidden` on an element computes its `overflow-y` from
+   * `visible` to `auto`, which turns <body> into a scroll container. Because
+   * the body box is exactly as tall as its content, that container has a
+   * scrollable range of 0px, so a touch gesture starting inside it has
+   * nowhere to go. The browser would normally chain the gesture up to the
+   * viewport, but `overscroll-behavior-y: none` on the same element forbids
+   * exactly that. Result: the document could not be scrolled by touch at all.
+   *
+   * Keeping the guard on the viewport element preserves the sideways-scroll
+   * protection while leaving <body> as a plain, non-scrolling box.
+   */
+  html {
     overflow-x: hidden;
-    max-width: 100%;
   }
   body {
     @apply bg-background font-body-md text-body-md text-on-surface antialiased;
-    overscroll-behavior-y: none;
   }
   * {
     min-width: 0;

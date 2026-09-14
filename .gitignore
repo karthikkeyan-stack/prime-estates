@@ -12,3 +12,9 @@ data/
 dist
 node_modules
 public/uploads/*
+.handover/q/
+
+# Client handover deliverable — contains live admin credentials by design.
+# Delivered to the client directly; never committed to a public repository.
+Prime-Estates-Handover.pdf
+.handover/

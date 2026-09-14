@@ -48,7 +48,7 @@ ok('analytics beacons fire in production', beacons.length > 0, JSON.stringify(be
 // Admin login through the real UI
 await p.goto(`${BASE}/admin`, { waitUntil: 'networkidle' });
 await p.fill('input[type="email"]', 'workwithsitecraft@gmail.com');
-await p.fill('input[type="password"]', 'PrimeEst8-Cbe-2026-xK9q');
+await p.fill('input[type="password"]', process.env.ADMIN_PASSWORD || '');
 await p.click('button[type="submit"]');
 await p.waitForTimeout(4000);
 const adminBody = await p.locator('body').innerText();

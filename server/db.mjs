@@ -46,8 +46,29 @@ async function boot() {
     // never issue, so the pooler is safe and is the right choice for
     // serverless. Each lambda instance keeps a tiny pool.
     const serverless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+    /*
+     * Strip any sslmode from the URL and let the `ssl` option below decide.
+     *
+     * node-postgres >= 8.16 honours sslmode in the connection string and
+     * treats `sslmode=require` as full chain verification. Supabase's
+     * pooler presents a self-signed chain, so a URL copied verbatim from
+     * the Supabase dashboard fails with SELF_SIGNED_CERT_IN_CHAIN and the
+     * `ssl` option is ignored. Removing the parameter makes this object
+     * the single source of truth: TLS is still used, we simply do not
+     * verify the chain (standard practice for Supabase's pooler).
+     */
+    let cleanUrl = url;
+    try {
+      const u = new URL(url);
+      if (u.searchParams.has('sslmode')) {
+        u.searchParams.delete('sslmode');
+        cleanUrl = u.toString();
+      }
+    } catch { /* not a parseable URL — pass through untouched */ }
+
     const pool = new pg.Pool({
-      connectionString: url,
+      connectionString: cleanUrl,
       ssl: isLocal ? false : { rejectUnauthorized: false },
       max: serverless ? 1 : 10,
       idleTimeoutMillis: serverless ? 10_000 : 30_000,

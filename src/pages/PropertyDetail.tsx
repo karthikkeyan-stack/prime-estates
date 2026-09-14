@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { trackPageView, trackEvent } from '../lib/analytics';
 import { Link, useParams } from 'react-router-dom';
 import { getProperty } from '../lib/api';
 import type { Property } from '../lib/types';
@@ -30,7 +31,13 @@ export default function PropertyDetail() {
     setNotFound(false);
     setActive(0);
     getProperty(slug)
-      .then((p) => { if (alive) setProperty(p); })
+      .then((p) => {
+        if (!alive) return;
+        setProperty(p);
+        // Re-record the page view now that we know which property this is,
+        // so "top properties" in the analytics dashboard is accurate.
+        trackPageView(`/properties/${p.slug}`, p.title, p.id);
+      })
       .catch(() => { if (alive) setNotFound(true); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };

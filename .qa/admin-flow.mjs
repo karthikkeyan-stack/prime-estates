@@ -183,7 +183,12 @@ ok('WhatsApp reply link present', !!waLink && waLink.includes('wa.me'));
 const telLink = await page.locator('a[href^="tel:"]').first().getAttribute('href');
 ok('Call link present', !!telLink);
 
-await page.locator('button:has-text("Mark contacted")').first().click();
+// The pipeline chips are labelled by state name (New / Contacted /
+// Follow-up / Qualified / Closed / Spam), not "Mark <state>".
+// "Contacted" also matches the status FILTER TAB in the list behind the
+// drawer, which the overlay intercepts — so scope to the open drawer.
+await page.locator('.fixed.z-\\[90\\] button:has-text("Contacted"), [role="dialog"] button:has-text("Contacted")')
+  .first().click();
 await page.waitForTimeout(1400);
 body = await page.locator('body').innerText();
 ok('status change works', /contacted/i.test(body));

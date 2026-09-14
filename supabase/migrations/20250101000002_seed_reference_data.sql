@@ -41,7 +41,7 @@ INSERT INTO public.services (slug, title, summary, icon, sort_order) VALUES
   ('commercial-property',    'Commercial Property',    'Offices, shops, showrooms and commercial buildings for business use.',                    'domain',            2),
   ('property-sales',         'Property Sales',         'Outright purchase and sale representation from search through registration.',             'real_estate_agent', 3),
   ('property-rentals',       'Property Rentals',       'Rental and lease arrangements for homes and commercial premises.',                        'key',               4),
-  ('real-estate-consulting', 'Real Estate Consulting', 'Advice on locality, pricing and suitability before you commit.',                          'insights',          5),
+  ('real-estate-consulting', 'Real Estate Consulting', 'Advice on locality, pricing and suitability before you commit.',                          'monitoring',          5),
   ('plots-land',             'Plots & Land',           'Residential plots, farmland and land parcels for development.',                           'landscape',         6),
   ('property-development',   'Property Development',   'Development projects undertaken as a developer since 2008.',                              'foundation',        7)
 ON CONFLICT (slug) DO UPDATE

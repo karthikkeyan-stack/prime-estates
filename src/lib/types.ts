@@ -202,3 +202,42 @@ export const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
   archived: 'Archived',
 };
+
+/* ----------------------------- analytics ---------------------------- */
+
+export interface AnalyticsSummary {
+  unique_visitors: number;
+  sessions: number;
+  page_views: number;
+  avg_duration_ms: number;
+  returning_sessions: number;
+  bounced: number;
+  whatsapp_clicks: number;
+  phone_clicks: number;
+  searches: number;
+  enquiry_events: number;
+  enquiries: number;
+  conversion_rate: number;
+  bounce_rate: number;
+}
+
+export interface AnalyticsResponse {
+  range: { from: string; to: string; label: string };
+  summary: AnalyticsSummary;
+  trend: { day: string; sessions: number; visitors: number; views: number }[];
+  topPages: { path: string; views: number; visitors: number }[];
+  topProperties: { property_id: number; title: string; slug: string; views: number }[];
+  sources: { source: string; host: string; sessions: number }[];
+  devices: { device: string; sessions: number }[];
+  geo: { country: string; city: string; sessions: number }[];
+  recent: { event_type: string; path: string | null; label: string | null; created_at: string }[];
+}
+
+export const ENQUIRY_STATUS_LABELS: Record<string, string> = {
+  new: 'New',
+  contacted: 'Contacted',
+  follow_up: 'Follow-up',
+  qualified: 'Qualified',
+  closed: 'Closed',
+  spam: 'Spam',
+};

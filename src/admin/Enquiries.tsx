@@ -12,10 +12,26 @@ const STATUS_TABS = [
   { key: '', label: 'All' },
   { key: 'new', label: 'New' },
   { key: 'contacted', label: 'Contacted' },
+  { key: 'follow_up', label: 'Follow-up' },
+  { key: 'qualified', label: 'Qualified' },
   { key: 'closed', label: 'Closed' },
+  { key: 'spam', label: 'Spam' },
 ];
 
+/* Pipeline order, with the icon shown on each action chip. */
+const PIPELINE = [
+  { key: 'new', label: 'New', icon: 'fiber_new' },
+  { key: 'contacted', label: 'Contacted', icon: 'phone_forwarded' },
+  { key: 'follow_up', label: 'Follow-up', icon: 'event_repeat' },
+  { key: 'qualified', label: 'Qualified', icon: 'verified' },
+  { key: 'closed', label: 'Closed', icon: 'task_alt' },
+  { key: 'spam', label: 'Spam', icon: 'block' },
+] as const;
+
 const STATUS_STYLE: Record<string, string> = {
+  follow_up: 'bg-secondary-fixed text-on-secondary-fixed-variant',
+  qualified: 'bg-tertiary-fixed text-on-tertiary-container',
+  spam: 'bg-surface-container-high text-on-surface-variant',
   new: 'bg-error-container text-on-error-container',
   contacted: 'bg-secondary-fixed text-on-secondary-fixed-variant',
   closed: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
@@ -68,7 +84,7 @@ export default function Enquiries() {
     setParams(next);
   };
 
-  async function setStatus(enquiry: Enquiry, value: 'new' | 'contacted' | 'closed') {
+  async function setStatus(enquiry: Enquiry, value: string) {
     setBusy(true);
     try {
       const updated = await patchEnquiry(enquiry.id, { status: value });
@@ -275,13 +291,13 @@ export default function Enquiries() {
         {selected && (
           <div className="space-y-space-md">
             <div className="flex items-center gap-1.5 flex-wrap">
-              {(['new', 'contacted', 'closed'] as const).map((s) => (
+              {PIPELINE.map((s) => (
                 <button
-                  key={s} onClick={() => setStatus(selected, s)} disabled={busy || selected.status === s}
-                  className={`chip ${selected.status === s ? 'chip-active' : ''} disabled:opacity-100`}
+                  key={s.key} onClick={() => setStatus(selected, s.key)} disabled={busy || selected.status === s.key}
+                  className={`chip ${selected.status === s.key ? 'chip-active' : ''} disabled:opacity-100`}
                 >
-                  {busy && selected.status !== s ? <Spinner size={12} /> : <Icon name={s === 'new' ? 'fiber_new' : s === 'contacted' ? 'phone_forwarded' : 'task_alt'} size={14} />}
-                  Mark {s}
+                  {busy && selected.status !== s.key ? <Spinner size={12} /> : <Icon name={s.icon} size={14} />}
+                  {s.label}
                 </button>
               ))}
             </div>

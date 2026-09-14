@@ -2,10 +2,7 @@
  * Typed fetch client. Same-origin relative URLs only — never localhost —
  * so it works behind the sandbox preview proxy and on Vercel alike.
  */
-import type {
-  Paged, Property, PropertyCardData, Category, LocationItem, ServiceItem,
-  GalleryItem, SiteSettings, AdminUser, DashboardStats, Enquiry,
-} from './types';
+import type { AdminUser, AnalyticsResponse, Category, DashboardStats, Enquiry, GalleryItem, LocationItem, Paged, Property, PropertyCardData, ServiceItem, SiteSettings } from './types';
 
 export class ApiError extends Error {
   status: number;
@@ -135,3 +132,9 @@ export const deleteEnquiry = (id: number) =>
 
 export const saveSettings = (payload: Record<string, string>) =>
   request<SiteSettings>('/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+
+export const adminAnalytics = (q: Record<string, string | number | undefined> = {}) =>
+  request<AnalyticsResponse>(`/admin/analytics${qs(q)}`);
+
+export const submitContact = (payload: Record<string, unknown>) =>
+  request<{ ok: true; id: number }>('/contact', { method: 'POST', body: JSON.stringify(payload) });

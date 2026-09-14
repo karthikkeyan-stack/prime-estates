@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { getServices, getLocations, getGallery, getProperties } from '../lib/api';
 import { useAsync, useEscape, useRevealGroup, useScrollLock } from '../hooks';
 import { useSettings } from '../lib/store';
@@ -586,5 +586,94 @@ function CtaBand() {
         </div>
       </section>
     </>
+  );
+}
+
+/* ------------------------------ /enquire ----------------------------- */
+/*
+ * A focused enquiry route. /contact is the "here is how to reach us" page
+ * (phone, WhatsApp, hours, map); /enquire is a single-purpose conversion
+ * page that can be linked from campaigns and the WhatsApp bio without the
+ * surrounding navigation noise.
+ */
+export function Enquire() {
+  const { settings, tel, waGeneral } = useSettings();
+  const [params] = useSearchParams();
+  const property = params.get('property') || '';
+
+  return (
+    <div className="pt-space-lg pb-space-xl">
+      <Seo
+        title={`Enquire | ${settings.business_name}`}
+        description="Tell us what you are looking for — budget, location and property type — and our advisory desk will respond with matching options in Coimbatore and Western Tamil Nadu."
+      />
+
+      <section className="shell mb-space-lg">
+        <nav aria-label="Breadcrumb" className="mb-space-md">
+          <ol className="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+            <li><Link to="/" className="hover:text-secondary">Home</Link></li>
+            <li aria-hidden="true"><Icon name="chevron_right" size={14} /></li>
+            <li className="text-on-surface font-medium">Enquire</li>
+          </ol>
+        </nav>
+        <span className="font-label-caps text-label-caps text-secondary tracking-widest uppercase">Tell us what you need</span>
+        <h1 className="font-headline-lg text-headline-lg-mobile sm:text-display-hero text-on-surface font-semibold mt-1 mb-space-sm">
+          Start your property search.
+        </h1>
+        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+          Share your requirement and our advisory desk will come back to you with options that
+          actually fit — not a generic list.
+        </p>
+      </section>
+
+      <section className="shell">
+        <div className="grid lg:grid-cols-12 gap-space-lg items-start">
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <div className="card p-space-lg lg:p-space-xl">
+              <EnquiryForm
+                source="enquire-page"
+                propertyTitle={property || undefined}
+                heading={property ? `Enquire about ${property}` : 'Your requirement'}
+                subheading="We reply during business hours. Your details are never shared with third parties."
+              />
+            </div>
+          </div>
+
+          <aside className="lg:col-span-5 order-1 lg:order-2 lg:sticky lg:top-[8.5rem]">
+            <div className="card p-space-lg bg-primary-container text-on-primary">
+              <h2 className="font-headline-sm text-headline-sm mb-space-sm">Prefer to talk?</h2>
+              <p className="font-body-md text-body-md text-primary-fixed-dim mb-space-md">
+                Most enquiries are answered fastest on WhatsApp — send us a message and we will
+                share matching options directly.
+              </p>
+              <div className="flex flex-col gap-2.5">
+                <a href={waGeneral} target="_blank" rel="noopener noreferrer" className="btn-whatsapp w-full justify-center">
+                  <Icon name="chat" size={18} /> WhatsApp us
+                </a>
+                <a href={tel} className="btn-secondary w-full justify-center">
+                  <Icon name="call" size={18} /> {settings.phone_display}
+                </a>
+              </div>
+            </div>
+
+            <ul className="mt-space-md space-y-space-sm">
+              {[
+                { icon: 'verified', title: 'Verified listings only', body: 'Every property we list is checked before it reaches you.' },
+                { icon: 'handshake', title: 'End-to-end guidance', body: 'From shortlisting to documentation and registration.' },
+                { icon: 'local_offer', title: 'No obligation', body: 'An enquiry costs nothing and commits you to nothing.' },
+              ].map((f) => (
+                <li key={f.title} className="flex gap-3">
+                  <Icon name={f.icon} className="text-xl text-secondary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-title-md text-title-md text-on-surface">{f.title}</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">{f.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </div>
   );
 }

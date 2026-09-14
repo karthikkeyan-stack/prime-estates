@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { trackEvent } from '../lib/analytics';
 import { createEnquiry, ApiError } from '../lib/api';
 import { useSettings, useToast } from '../lib/store';
 import { Field, Icon, Spinner } from './ui';
@@ -74,6 +75,10 @@ export function EnquiryForm({
         source,
       });
       setDone(true);
+      trackEvent('enquiry_submit', {
+        label: propertyTitle || source || 'general',
+        propertyId: propertyId ?? null,
+      });
       push('Enquiry received. Our advisory desk will contact you shortly.', 'success');
       setValues({ name: '', phone: '', email: '', message: '', interest: showInterest ? INTERESTS[0] : '', budget: '' });
     } catch (err) {

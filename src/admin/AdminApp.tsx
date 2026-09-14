@@ -8,6 +8,7 @@ const Dashboard = lazy(() => import('./Dashboard'));
 const PropertyList = lazy(() => import('./PropertyList'));
 const PropertyForm = lazy(() => import('./PropertyForm'));
 const Enquiries = lazy(() => import('./Enquiries'));
+const Analytics = lazy(() => import('./Analytics'));
 const Settings = lazy(() => import('./Settings'));
 
 function AdminLoader() {
@@ -62,6 +63,7 @@ function Guarded() {
           <Route path="properties/new" element={<PropertyForm />} />
           <Route path="properties/:id" element={<PropertyForm />} />
           <Route path="enquiries" element={<Enquiries />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<AdminNotFound />} />
         </Routes>

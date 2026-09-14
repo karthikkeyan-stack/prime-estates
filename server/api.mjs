@@ -19,6 +19,10 @@ import {
 import {
   decodeDataUri, putImage, removeImage, storageKind, storageHealth, assertStorageReady,
 } from './storage.mjs';
+import {
+  recordSession, recordPageView, recordEvent, recordPing,
+  resolveRange, analyticsSummary, analyticsBreakdown,
+} from './analytics.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -350,6 +354,86 @@ api.get('/admin/me', async (req, res, next) => {
 
 /* ========================= admin: dashboard ========================= */
 
+/* ===================== analytics ingest (public) ===================== */
+/*
+ * These three endpoints answer 204 immediately and do the database work
+ * afterwards. Analytics must never add latency to the site, and a failed
+ * write must never surface to a visitor — so every handler is
+ * fire-and-forget with a swallowed error.
+ */
+function ingest(handler) {
+  return (req, res) => {
+    res.status(204).end();
+    Promise.resolve()
+      .then(() => handler(req, req.body || {}))
+      .catch((e) => console.warn('[analytics]', e && (e.stack || e.message)));
+  };
+}
+
+api.post('/analytics/session', ingest(recordSession));
+api.post('/analytics/pageview', ingest(recordPageView));
+api.post('/analytics/event', ingest(recordEvent));
+api.post('/analytics/ping', ingest(recordPing));
+
+/* ================== contact submissions (public) ==================== */
+
+api.post('/contact', async (req, res, next) => {
+  try {
+    const b = req.body || {};
+    const errors = {};
+    const name = String(b.name || '').trim();
+    const phone = String(b.phone || '').trim();
+    const email = String(b.email || '').trim();
+    if (name.length < 2) errors.name = 'Please enter your name.';
+    if (!/^[\d+\-\s()]{8,18}$/.test(phone)) errors.phone = 'Please enter a valid phone number.';
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.email = 'Please enter a valid email.';
+    if (Object.keys(errors).length) return res.status(400).json({ error: 'Validation failed', errors });
+
+    const row = await one(
+      `INSERT INTO contact_submissions (name, phone, email, subject, message, source_path)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+      [name, phone, email || null,
+       String(b.subject || '').slice(0, 200) || null,
+       String(b.message || '').slice(0, 4000) || null,
+       String(b.source_path || '').slice(0, 300) || null],
+    );
+    res.status(201).json({ ok: true, id: row.id });
+  } catch (e) { next(e); }
+});
+
+/* ===================== analytics reporting (admin) =================== */
+
+api.get('/admin/analytics', requireAuth, async (req, res, next) => {
+  try {
+    const range = resolveRange(req.query);
+    const [summary, breakdown] = await Promise.all([
+      analyticsSummary(range),
+      analyticsBreakdown(range),
+    ]);
+    res.json({ range, summary, ...breakdown });
+  } catch (e) { next(e); }
+});
+
+api.get('/admin/contact-submissions', requireAuth, async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 15));
+    const where = []; const params = [];
+    if (req.query.status) { params.push(req.query.status); where.push(`status = $${params.length}`); }
+    if (req.query.search) {
+      params.push(`%${req.query.search}%`);
+      where.push(`(name ILIKE $${params.length} OR phone ILIKE $${params.length} OR message ILIKE $${params.length})`);
+    }
+    const w = where.length ? `WHERE ${where.join(' AND ')}` : '';
+    const total = (await one(`SELECT COUNT(*)::int AS total FROM contact_submissions ${w}`, params)).total;
+    params.push(limit, (page - 1) * limit);
+    const data = await rows(
+      `SELECT * FROM contact_submissions ${w} ORDER BY created_at DESC
+        LIMIT $${params.length - 1} OFFSET $${params.length}`, params);
+    res.json({ data, page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) });
+  } catch (e) { next(e); }
+});
+
 api.get('/admin/stats', requireAuth, async (_req, res, next) => {
   try {
     const stats = await one(`
@@ -365,8 +449,20 @@ api.get('/admin/stats', requireAuth, async (_req, res, next) => {
         (SELECT COUNT(*) FROM enquiries WHERE status='new' AND archived = FALSE)::int AS new_enquiries,
         (SELECT COUNT(*) FROM enquiries WHERE status='contacted' AND archived=FALSE)::int AS contacted_enquiries,
         (SELECT COUNT(*) FROM enquiries WHERE status='closed' AND archived=FALSE)::int    AS closed_enquiries,
+        (SELECT COUNT(*) FROM enquiries WHERE status='follow_up' AND archived=FALSE)::int AS followup_enquiries,
+        (SELECT COUNT(*) FROM enquiries WHERE status='qualified' AND archived=FALSE)::int AS qualified_enquiries,
+        (SELECT COUNT(*) FROM enquiries WHERE status='spam')::int                     AS spam_enquiries,
+        (SELECT COUNT(*) FROM contact_submissions WHERE archived = FALSE)::int        AS contact_submissions,
         (SELECT COUNT(*) FROM property_images)::int                                   AS images,
-        (SELECT COALESCE(SUM(views),0) FROM properties)::int                          AS total_views
+        (SELECT COALESCE(SUM(views),0) FROM properties)::int                          AS total_views,
+        -- Visitor analytics for the dashboard headline numbers.
+        (SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions)::int                AS total_visitors,
+        (SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions
+          WHERE created_at >= date_trunc('day', now()))::int                          AS visitors_today,
+        (SELECT COUNT(*) FROM page_views)::int                                        AS page_views,
+        (SELECT COUNT(*) FROM page_views WHERE created_at >= date_trunc('day', now()))::int AS page_views_today,
+        (SELECT COUNT(*) FROM visitor_events WHERE event_type='whatsapp_click')::int  AS whatsapp_clicks,
+        (SELECT COUNT(*) FROM visitor_events WHERE event_type IN ('phone_click','call_click'))::int AS phone_clicks
     `);
     const [recentEnquiries, recentProperties, byType] = await Promise.all([
       rows(`SELECT id, name, phone, email, property_title, status, created_at
@@ -375,6 +471,12 @@ api.get('/admin/stats', requireAuth, async (_req, res, next) => {
               FROM properties ORDER BY created_at DESC LIMIT 6`),
       rows(`SELECT property_type AS key, COUNT(*)::int AS count FROM properties GROUP BY 1 ORDER BY 2 DESC`),
     ]);
+    // Conversion = enquiries per session, expressed as a percentage.
+    const sessions = (await one(`SELECT COUNT(*)::int AS n FROM visitor_sessions`)).n;
+    stats.sessions = sessions;
+    stats.conversion_rate = sessions
+      ? +(((stats.enquiries || 0) / sessions) * 100).toFixed(2)
+      : 0;
     res.json({ stats, recentEnquiries, recentProperties, byType });
   } catch (e) { next(e); }
 });
@@ -708,7 +810,7 @@ api.get('/admin/enquiries', requireAuth, async (req, res, next) => {
     const where = [];
     const params = [];
     where.push(q.archived === 'true' ? 'archived = TRUE' : 'archived = FALSE');
-    if (q.status && ['new', 'contacted', 'closed'].includes(q.status)) {
+    if (q.status && ['new', 'contacted', 'follow_up', 'qualified', 'closed', 'spam'].includes(q.status)) {
       params.push(q.status); where.push(`status = $${params.length}`);
     }
     if (q.search) {
@@ -734,7 +836,7 @@ api.patch('/admin/enquiries/:id', requireAuth, async (req, res, next) => {
     const id = parseInt(req.params.id, 10);
     const sets = [];
     const params = [];
-    if (['new', 'contacted', 'closed'].includes(req.body?.status)) {
+    if (['new', 'contacted', 'follow_up', 'qualified', 'closed', 'spam'].includes(req.body?.status)) {
       params.push(req.body.status); sets.push(`status = $${params.length}`);
     }
     if (typeof req.body?.admin_notes === 'string') {
@@ -774,7 +876,7 @@ api.get('/seo/sitemap.xml', async (req, res, next) => {
     const props = await rows(
       "SELECT slug, updated_at FROM properties WHERE published = TRUE AND status NOT IN ('draft','archived') ORDER BY updated_at DESC",
     );
-    const statics = ['', '/properties', '/about', '/services', '/locations', '/gallery', '/contact'];
+    const statics = ['', '/properties', '/about', '/services', '/locations', '/gallery', '/contact', '/enquire'];
     const urls = [
       ...statics.map((p) => `  <url><loc>${base}${p}</loc><changefreq>weekly</changefreq><priority>${p === '' ? '1.0' : '0.8'}</priority></url>`),
       ...props.map((p) => `  <url><loc>${base}/properties/${p.slug}</loc><lastmod>${new Date(p.updated_at).toISOString().slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>`),

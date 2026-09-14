@@ -178,6 +178,7 @@ const NAV = [
   { to: '/admin/properties', label: 'Properties', icon: 'home_work' },
   { to: '/admin/properties/new', label: 'Add Property', icon: 'add_circle' },
   { to: '/admin/enquiries', label: 'Enquiries', icon: 'inbox' },
+  { to: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
   { to: '/admin/settings', label: 'Settings', icon: 'settings' },
 ];
 

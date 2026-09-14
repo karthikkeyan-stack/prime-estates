@@ -5,16 +5,41 @@ function collect(dir, out = new Set()) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = dir + '/' + e.name;
     if (e.isDirectory()) collect(p, out);
+    else if (/\.(mjs|sql)$/.test(e.name)) {
+      /*
+       * Icon names also live in the DATABASE: services and property
+       * categories are seeded with an icon name from server/seed.mjs and
+       * the Supabase seed migration. Those names never appear in src/, so
+       * a src-only scan silently ships blank glyphs — exactly how
+       * `corporate_fare` and `insights` went missing on /services.
+       *
+       * The seeds are positional tuples, so there is no `icon:` key to
+       * anchor on. Collect every short snake_case quoted literal and let
+       * the existence check below keep only the ones that are real
+       * Material Symbols. A false positive costs nothing; a miss ships a
+       * hole in the UI.
+       */
+      const s = fs.readFileSync(p, 'utf8');
+      for (const m of s.matchAll(/'([a-z][a-z0-9]*(?:_[a-z0-9]+)*)'/g)) {
+        if (m[1].length >= 3 && m[1].length <= 24) out.add(m[1]);
+      }
+    }
     else if (/\.tsx?$/.test(e.name)) {
       const s = fs.readFileSync(p, 'utf8');
       for (const m of s.matchAll(/(?:name|icon)[:=]\s*'([a-z0-9_]+)'/g)) out.add(m[1]);
-      for (const m of s.matchAll(/name="([a-z0-9_]+)"/g)) out.add(m[1]);
+      // Covers both name="x" and icon="x" as JSX props. The icon= form is
+      // used by StatCard/Panel-style wrappers that forward to <Icon>.
+      for (const m of s.matchAll(/(?:name|icon)="([a-z0-9_]+)"/g)) out.add(m[1]);
     }
   }
   return out;
 }
 const dirCheck = 'node_modules/@material-symbols/svg-400/outlined/';
-const names = [...collect('src')].filter(n => fs.existsSync(dirCheck + n + '.svg')).sort();
+// Scan the components AND the seed sources that put icon names in the DB.
+const found = collect('src');
+collect('server', found);
+collect('supabase', found);
+const names = [...found].filter(n => fs.existsSync(dirCheck + n + '.svg')).sort();
 const dir = 'node_modules/@material-symbols/svg-400/outlined/';
 const out = {}; const missing = [];
 for (const n of names) {

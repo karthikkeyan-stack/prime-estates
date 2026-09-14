@@ -1,7 +1,8 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { SettingsProvider, ToastProvider } from './lib/store';
 import { Header, Footer, WhatsAppFloat, ScrollToTop } from './components/Layout';
+import { trackPageView, installLinkTracking, installSessionPing } from './lib/analytics';
 import { Spinner } from './components/ui';
 import Home from './pages/Home';
 
@@ -14,6 +15,7 @@ const Services = lazy(() => import('./pages/Static').then((m) => ({ default: m.S
 const Locations = lazy(() => import('./pages/Static').then((m) => ({ default: m.Locations })));
 const Gallery = lazy(() => import('./pages/Static').then((m) => ({ default: m.Gallery })));
 const Contact = lazy(() => import('./pages/Static').then((m) => ({ default: m.Contact })));
+const Enquire = lazy(() => import('./pages/Static').then((m) => ({ default: m.Enquire })));
 const AdminApp = lazy(() => import('./admin/AdminApp'));
 
 function PageLoader() {
@@ -53,6 +55,27 @@ function Shell() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
+  /*
+   * Page-view tracking for the public site only — admin activity is the
+   * business's own staff and would pollute visitor numbers.
+   *
+   * This runs in an effect after paint and every call inside is
+   * fire-and-forget, so analytics can never delay a route transition.
+   * Property detail pages attach their property id separately, once the
+   * property has actually loaded.
+   */
+  useEffect(() => {
+    if (isAdmin) return;
+    trackPageView(location.pathname + location.search);
+  }, [location.pathname, location.search, isAdmin]);
+
+  // One delegated listener covers every WhatsApp/Call link on the site,
+  // including ones added later. Mounted once, not per route.
+  useEffect(() => installLinkTracking(), []);
+
+  // Closes the session on exit so session duration includes the last page.
+  useEffect(() => installSessionPing(), []);
+
   if (isAdmin) {
     return (
       <Suspense fallback={<PageLoader />}>
@@ -75,6 +98,7 @@ function Shell() {
           <Route path="/locations" element={<Locations />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/enquire" element={<Enquire />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

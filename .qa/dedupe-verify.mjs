@@ -1,0 +1,28 @@
+import { chromium } from 'playwright';
+const pg = (await import('pg')).default;
+const BASE='http://127.0.0.1:4015';
+const b=await chromium.launch(); const c=await b.newContext({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' }); const p=await c.newPage();
+await p.goto(`${BASE}/`,{waitUntil:'networkidle'});
+const sid = await p.evaluate(()=>sessionStorage.getItem('pe_sid'));
+await p.waitForTimeout(2500);
+await p.locator('a[href^="/properties/"]').first().click();
+await p.waitForURL(/\/properties\/[a-z0-9-]+/);
+await p.waitForTimeout(2200);
+await p.evaluate(()=>window.dispatchEvent(new Event('pagehide')));
+await p.waitForTimeout(1200);
+await b.close();
+
+const cl=new pg.Client({connectionString:'postgresql://postgres@127.0.0.1:5433/prime_prod'});
+await cl.connect();
+const pv=await cl.query('SELECT path, property_id, COUNT(*)::int AS n FROM page_views WHERE session_id=$1 GROUP BY 1,2 ORDER BY 1',[sid]);
+const ss=await cl.query('SELECT page_count, duration_ms, landing_path, exit_path FROM visitor_sessions WHERE id=$1',[sid]);
+console.log('\npage_views for this session:');
+pv.rows.forEach(r=>console.log(`   ${r.n}x  ${r.path}  property_id=${r.property_id}`));
+console.log('\nsession:', ss.rows[0]);
+const dupes = pv.rows.filter(r=>r.n>1);
+console.log('\n' + (dupes.length===0 ? 'PASS no duplicate page views' : `FAIL ${dupes.length} duplicated path(s)`));
+const attributed = pv.rows.some(r=>r.path.startsWith('/properties/') && r.property_id);
+console.log(attributed ? 'PASS property view attributed to an id' : 'FAIL property view not attributed');
+const dur = Number(ss.rows[0]?.duration_ms||0);
+console.log(dur>=2000 ? `PASS session duration recorded (${dur} ms)` : `FAIL duration too low (${dur} ms)`);
+await cl.end();

@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 const BASE = process.env.BASE || 'http://localhost:4178';
 const WIDTHS = (process.env.WIDTHS || '320,360,375,390,412,430,480,768,820,1024,1280,1440,1920').split(',').map(Number);
-const ROUTES = (process.env.ROUTES || '/,/properties,/about,/services,/locations,/gallery,/contact,/enquire,/properties/kensington-manor,/nope-404').split(',');
+const ROUTES = (process.env.ROUTES || '/,/properties,/about,/services,/locations,/gallery,/contact,/enquire,/properties/the-kensington-manor,/nope-404').split(',');
 const MOBILE_MAX = 820;
 const browser = await chromium.launch();
 

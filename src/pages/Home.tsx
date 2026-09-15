@@ -52,7 +52,7 @@ export default function Home() {
       />
 
       {/* ============ 1. CINEMATIC HERO ============ */}
-      <section className="relative w-full -mt-[5.75rem] sm:-mt-[7.25rem] pt-[7.5rem] sm:pt-[11rem] pb-24 sm:pb-32 lg:pb-40 overflow-hidden bg-primary-container">
+      <section className="relative w-full -mt-[5.75rem] md:-mt-[7.25rem] pt-[7.5rem] md:pt-[11rem] pb-24 md:pb-32 lg:pb-40 overflow-hidden bg-primary-container">
         {/*
           The hero is the LCP element, so it is a real <picture> rather than a
           CSS background-image: backgrounds cannot use srcset, are discovered
@@ -85,9 +85,9 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/85 to-primary-container/60" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" aria-hidden="true" />
 
-        <div className="relative shell z-10 pt-2 sm:pt-10">
+        <div className="relative shell z-10 pt-2 md:pt-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-space-xs px-3 sm:px-3.5 py-1.5 rounded-full bg-surface-bright/10 backdrop-blur-md mb-space-md sm:mb-space-lg animate-fade-in max-w-full">
+            <div className="inline-flex items-center gap-space-xs px-3 sm:px-3.5 py-1.5 rounded-full bg-surface-bright/10 backdrop-blur-md mb-space-md md:mb-space-lg animate-fade-in max-w-full">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse motion-reduce:animate-none shrink-0" aria-hidden="true" />
               <span className="font-label-caps text-label-caps text-secondary-fixed tracking-[0.1em] sm:tracking-[0.18em] whitespace-nowrap truncate">
                 {settings.business_name.toUpperCase()} • {settings.city.toUpperCase()} • SINCE {settings.established}
@@ -126,7 +126,7 @@ export default function Home() {
       </section>
 
       {/* ============ 2. FLOATING SEARCH MODULE ============ */}
-      <section className="relative z-30 shell -mt-16 sm:-mt-20 mb-space-xl">
+      <section className="relative z-30 shell -mt-16 md:-mt-20 mb-space-xl">
         {categories.data && locations.data ? (
           <SearchBar categories={categories.data} locations={locations.data} total={totalListings} />
         ) : (

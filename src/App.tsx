@@ -42,9 +42,10 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
         Skip to main content
       </a>
       <Header />
-      {/* Offset matches the fixed header: 24px rail + 68px bar on phones,
-          24px + 80px from 640px up. */}
-      <main id="main" className="w-full pt-[5.75rem] sm:pt-[7.25rem] bg-background min-h-screen">
+      {/* Offset matches the fixed header: 24px rail + 68px bar below 768px,
+          24px + 80px from 768px up. Must stay in step with the bar height in
+          Header and with the hero's negative margin in Home. */}
+      <main id="main" className="w-full pt-[5.75rem] md:pt-[7.25rem] bg-background min-h-screen">
         {children}
       </main>
       <Footer />

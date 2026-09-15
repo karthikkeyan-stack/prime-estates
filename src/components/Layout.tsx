@@ -104,7 +104,7 @@ export function Header() {
 
       {/* Main bar */}
       <div
-        className={`h-[4.25rem] sm:h-20 backdrop-blur-xl transition-shadow ${
+        className={`h-[4.25rem] md:h-20 backdrop-blur-xl transition-shadow ${
           scrolled ? 'bg-surface-bright/95 shadow-[0_1px_12px_rgba(0,0,0,0.07)]' : 'bg-surface-bright/90 shadow-[0_1px_8px_rgba(0,0,0,0.04)]'
         }`}
       >
@@ -180,7 +180,7 @@ export function Header() {
                        flex flex-col animate-fade-in"
             aria-label="Mobile navigation"
           >
-            <div className="flex items-center justify-between px-gutter-mobile h-[4.25rem] sm:h-20 border-b border-[#e7e5e4] shrink-0">
+            <div className="flex items-center justify-between px-gutter-mobile h-[4.25rem] md:h-20 border-b border-[#e7e5e4] shrink-0">
               <Logo />
               <button
                 onClick={() => setOpen(false)}

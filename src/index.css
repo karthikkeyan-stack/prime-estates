@@ -164,6 +164,63 @@
   }
 }
 
+/*
+ * Announcement ticker.
+ *
+ * The full line is wider than a phone viewport, so on narrow screens it
+ * scrolls as a seamless marquee instead of being cut off mid-word with an
+ * ellipsis. The track holds two identical copies and translates by exactly
+ * -50%, so the loop has no visible seam.
+ *
+ * From 640px up the line fits, so the animation is switched off entirely and
+ * the rail renders exactly as it always has on tablet and desktop.
+ */
+.ticker-mask {
+  display: block;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: ticker-slide 18s linear infinite;
+}
+.ticker-track > span {
+  flex: none;
+}
+.ticker-dup {
+  padding-left: 2.5rem;
+}
+@keyframes ticker-slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (min-width: 640px) {
+  .ticker-mask {
+    flex: 0 1 auto;
+  }
+  .ticker-track {
+    animation: none;
+    transform: none;
+  }
+  .ticker-dup {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    transform: none;
+  }
+  .ticker-dup {
+    display: none;
+  }
+  .ticker-mask {
+    text-overflow: ellipsis;
+  }
+}
+
 /* Scroll-reveal: elements start hidden, .is-visible is added by IntersectionObserver */
 .reveal {
   opacity: 0;

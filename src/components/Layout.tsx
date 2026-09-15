@@ -77,11 +77,20 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50">
       {/* Announcement rail — established credibility + direct line */}
       <div className="bg-primary-container text-on-primary py-space-xs px-gutter-mobile lg:px-gutter-desktop">
-        <div className="max-w-shell mx-auto flex items-center justify-between gap-3 font-label-caps text-label-caps tracking-widest">
-          <div className="flex items-center gap-space-sm min-w-0">
+        <div className="max-w-shell mx-auto flex items-center justify-between gap-3 font-label-caps text-label-caps tracking-[0.06em] sm:tracking-widest">
+          <div className="flex items-center gap-space-sm min-w-0 flex-1 sm:flex-none">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-secondary-container shrink-0" aria-hidden="true" />
-            <span className="truncate">
-              ESTABLISHED {settings.established} • {settings.city.toUpperCase()} • RESIDENTIAL &amp; COMMERCIAL
+            {/* Below 640px the full line cannot fit. Instead of an ellipsis
+                cut-off it scrolls seamlessly; see .ticker-* in index.css. */}
+            <span className="ticker-mask min-w-0">
+              <span className="ticker-track">
+                <span>
+                  ESTABLISHED {settings.established} • {settings.city.toUpperCase()} • RESIDENTIAL &amp; COMMERCIAL
+                </span>
+                <span className="ticker-dup" aria-hidden="true">
+                  ESTABLISHED {settings.established} • {settings.city.toUpperCase()} • RESIDENTIAL &amp; COMMERCIAL
+                </span>
+              </span>
             </span>
           </div>
           <div className="hidden md:flex items-center gap-space-md shrink-0">
@@ -95,7 +104,7 @@ export function Header() {
 
       {/* Main bar */}
       <div
-        className={`h-20 backdrop-blur-xl transition-shadow ${
+        className={`h-[4.25rem] sm:h-20 backdrop-blur-xl transition-shadow ${
           scrolled ? 'bg-surface-bright/95 shadow-[0_1px_12px_rgba(0,0,0,0.07)]' : 'bg-surface-bright/90 shadow-[0_1px_8px_rgba(0,0,0,0.04)]'
         }`}
       >
@@ -171,7 +180,7 @@ export function Header() {
                        flex flex-col animate-fade-in"
             aria-label="Mobile navigation"
           >
-            <div className="flex items-center justify-between px-gutter-mobile h-20 border-b border-[#e7e5e4] shrink-0">
+            <div className="flex items-center justify-between px-gutter-mobile h-[4.25rem] sm:h-20 border-b border-[#e7e5e4] shrink-0">
               <Logo />
               <button
                 onClick={() => setOpen(false)}

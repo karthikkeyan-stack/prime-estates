@@ -52,7 +52,7 @@ export default function Home() {
       />
 
       {/* ============ 1. CINEMATIC HERO ============ */}
-      <section className="relative w-full -mt-[7.25rem] pt-[11rem] pb-32 lg:pb-40 overflow-hidden bg-primary-container">
+      <section className="relative w-full -mt-[5.75rem] sm:-mt-[7.25rem] pt-[7.5rem] sm:pt-[11rem] pb-24 sm:pb-32 lg:pb-40 overflow-hidden bg-primary-container">
         {/*
           The hero is the LCP element, so it is a real <picture> rather than a
           CSS background-image: backgrounds cannot use srcset, are discovered
@@ -85,32 +85,37 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/85 to-primary-container/60" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" aria-hidden="true" />
 
-        <div className="relative shell z-10 pt-10">
+        <div className="relative shell z-10 pt-2 sm:pt-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-space-xs px-3.5 py-1.5 rounded-full bg-surface-bright/10 backdrop-blur-md mb-space-lg animate-fade-in">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse motion-reduce:animate-none" aria-hidden="true" />
-              <span className="font-label-caps text-label-caps text-secondary-fixed tracking-[0.18em]">
+            <div className="inline-flex items-center gap-space-xs px-3 sm:px-3.5 py-1.5 rounded-full bg-surface-bright/10 backdrop-blur-md mb-space-md sm:mb-space-lg animate-fade-in max-w-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse motion-reduce:animate-none shrink-0" aria-hidden="true" />
+              <span className="font-label-caps text-label-caps text-secondary-fixed tracking-[0.1em] sm:tracking-[0.18em] whitespace-nowrap truncate">
                 {settings.business_name.toUpperCase()} • {settings.city.toUpperCase()} • SINCE {settings.established}
               </span>
             </div>
 
-            <h1 className="font-display-hero text-display-hero-mobile sm:text-display-hero text-on-primary tracking-tight mb-space-md leading-[1.08] animate-fade-up">
+            {/* Mobile gets its own size/leading/tracking. From 640px up the
+                values below restore the text-display-hero token exactly
+                (56px / 64px / -0.02em), so desktop typography is unchanged. */}
+            <h1 className="font-display-hero text-[2.125rem] leading-[1.14] tracking-[-0.015em] sm:text-display-hero sm:leading-[64px] sm:tracking-[-0.02em] text-on-primary mb-space-sm sm:mb-space-md animate-fade-up">
               Find a Place Worth{' '}
               <span className="italic font-normal text-secondary-fixed">Calling Your Own.</span>
             </h1>
 
-            <p className="font-body-lg text-body-lg text-primary-fixed-dim max-w-2xl leading-relaxed mb-space-xl animate-fade-up" style={{ animationDelay: '90ms' }}>
+            <p className="font-body-lg text-[0.9375rem] leading-[1.6] sm:text-body-lg sm:leading-relaxed text-primary-fixed-dim max-w-[34ch] sm:max-w-2xl mb-space-lg sm:mb-space-xl animate-fade-up" style={{ animationDelay: '90ms' }}>
               Residential and commercial properties for outright purchase and rental across Coimbatore,
               Tirupur, Pollachi, Ooty, Erode and Palakkad — guided by consultants who have worked these
               markets since {settings.established}.
             </p>
 
-            <div className="flex flex-wrap items-center gap-space-md animate-fade-up" style={{ animationDelay: '180ms' }}>
-              <Link to="/properties" className="btn-bronze">
+            {/* On phones both CTAs share one full-width column so the
+                secondary action reads as intentional rather than stunted. */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-space-sm sm:gap-space-md animate-fade-up" style={{ animationDelay: '180ms' }}>
+              <Link to="/properties" className="btn-bronze w-full sm:w-auto">
                 <span>Explore Curated Properties</span>
                 <Icon name="arrow_forward" size={18} />
               </Link>
-              <a href={waGeneral} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
+              <a href={waGeneral} target="_blank" rel="noopener noreferrer" className="btn-whatsapp w-full sm:w-auto">
                 <Icon name="chat" size={20} />
                 <span className="hidden sm:inline">WhatsApp Private Desk ({settings.phone_display})</span>
                 <span className="sm:hidden">WhatsApp Us</span>

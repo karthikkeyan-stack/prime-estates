@@ -45,7 +45,14 @@ export function PropertyCard({
             </span>
           )}
         </Link>
-        <div className="flex-1 p-space-md flex flex-col justify-between min-w-0">
+        {/*
+          These cards sit in a column that stretches to match the flagship
+          card's height. With justify-between the price block was pushed to the
+          very bottom, leaving a large empty band between the location and the
+          price. Grouping the content at the top keeps the card readable at any
+          stretched height; the image column absorbs the extra space instead.
+        */}
+        <div className="flex-1 p-space-md flex flex-col min-w-0">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               <span className="font-label-caps text-label-caps text-secondary uppercase">{typeLabel}</span>
@@ -60,7 +67,7 @@ export function PropertyCard({
               {property.location}
             </p>
           </div>
-          <div className="mt-space-sm">
+          <div className="mt-space-sm pt-space-sm border-t border-[#f0eeec]">
             <div className="font-metric-price text-metric-price text-secondary tabular mb-1.5 truncate">{price}</div>
             <div className="flex items-center gap-2.5 font-body-sm text-body-sm text-on-surface-variant tabular flex-wrap">
               {property.bedrooms ? <span className="flex items-center gap-1"><Icon name="bed" size={13} />{property.bedrooms}</span> : null}

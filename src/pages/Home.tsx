@@ -264,10 +264,15 @@ export default function Home() {
                   <PropertyCard property={flagship} variant="flagship" priority />
                 </div>
               )}
+              {/* Cards size to their own content rather than stretching to the
+                  flagship height (which left a dead band inside each card).
+                  The column is centred so the pair reads as a deliberate
+                  counterweight to the flagship instead of leaving the lower
+                  half of the column empty. */}
               {stacked.length > 0 && (
-                <div className="lg:col-span-5 flex flex-col gap-space-md">
+                <div className="lg:col-span-5 flex flex-col justify-center gap-space-md">
                   {stacked.map((p) => (
-                    <div key={p.id} className="flex-1" data-reveal>
+                    <div key={p.id} data-reveal>
                       <PropertyCard property={p} variant="compact" />
                     </div>
                   ))}

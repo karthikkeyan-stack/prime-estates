@@ -51,14 +51,20 @@ export default function Home() {
         ]}
       />
 
-      {/* ============ 1. CINEMATIC HERO ============ */}
-      <section className="relative w-full -mt-[5.75rem] md:-mt-[7.25rem] pt-[7.5rem] md:pt-[11rem] pb-24 md:pb-32 lg:pb-40 overflow-hidden bg-primary-container">
-        {/*
-          The hero is the LCP element, so it is a real <picture> rather than a
-          CSS background-image: backgrounds cannot use srcset, are discovered
-          late by the preload scanner, and cannot be given fetchpriority.
-          AVIF at the right width turns a 225 KB download into roughly 20 KB.
-        */}
+      {/* ============ 1. HERO ============ */}
+      {/*
+        The photograph is the hero. Earlier this image sat at opacity-40 under
+        mix-blend-luminosity and a full-bleed navy gradient, which stripped its
+        colour and dropped the visible area to ~32/255 brightness — the villa,
+        the warm interior lighting and the reflection pool were all invisible,
+        so the opening read as a flat navy rectangle.
+
+        Now the image renders at full strength and legibility comes from a
+        directional scrim: opaque at the left edge where the text sits, clear
+        on the right where the architecture is. Copy stays above 4.5:1 while
+        the property stays visible.
+      */}
+      <section className="relative w-full -mt-[5.75rem] md:-mt-[7.25rem] overflow-hidden bg-primary-container">
         <picture>
           <source
             type="image/avif"
@@ -74,53 +80,94 @@ export default function Home() {
             src="/media/r/hero-estate-1408.jpg"
             srcSet="/media/r/hero-estate-400.jpg 400w, /media/r/hero-estate-800.jpg 800w, /media/r/hero-estate-1408.jpg 1408w"
             sizes="100vw"
-            alt="Contemporary luxury estate villa at dusk with reflection pool"
+            alt="Contemporary residence at dusk with lit interiors and a reflection pool"
             width={1408}
             height={768}
             decoding="async"
             {...{ fetchpriority: 'high' }}
-            className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity scale-105"
+            className="absolute inset-0 w-full h-full object-cover object-[68%_center] md:object-center"
           />
         </picture>
-        <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/85 to-primary-container/60" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" aria-hidden="true" />
 
-        <div className="relative shell z-10 pt-2 md:pt-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-space-xs px-3 sm:px-3.5 py-1.5 rounded-full bg-surface-bright/10 backdrop-blur-md mb-space-md md:mb-space-lg animate-fade-in max-w-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse motion-reduce:animate-none shrink-0" aria-hidden="true" />
-              <span className="font-label-caps text-label-caps text-secondary-fixed tracking-[0.1em] sm:tracking-[0.18em] whitespace-nowrap truncate">
-                {settings.business_name.toUpperCase()} • {settings.city.toUpperCase()} • SINCE {settings.established}
+        {/*
+          Two scrims. Below 1024px the copy spans most of the frame and the
+          villa's lit windows sit directly behind it, so the vertical scrim is
+          heavy — measured contrast against the brightest backdrop pixel is
+          otherwise as low as 1.3:1. From 1024px the text occupies only the
+          left column, so the scrim lightens and the architecture opens up.
+        */}
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-[#0b1220]/94 via-[#0b1220]/86 to-[#0b1220]/94
+                     lg:from-[#0b1220]/80 lg:via-[#0b1220]/45 lg:to-[#0b1220]/85"
+          aria-hidden="true"
+        />
+        {/* Horizontal scrim: keeps the right side open so the building reads. */}
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#0b1220]/85 via-[#0b1220]/60 to-[#0b1220]/25
+                     lg:from-[#0b1220]/94 lg:via-[#0b1220]/62 lg:to-transparent"
+          aria-hidden="true"
+        />
+
+        {/* Bottom padding leaves room for the search card, which pulls up into
+            the hero by 4rem on phones / 5rem from 768px (see next section). */}
+        <div className="hero-shell relative z-10 shell pt-[6.5rem] md:pt-[10rem] pb-28 md:pb-36">
+          <div className="max-w-[36rem] lg:max-w-[40rem]">
+            {/* Eyebrow: a hairline rule instead of a pill — quieter, more editorial. */}
+            <div className="flex items-center gap-3 mb-5 md:mb-7 animate-fade-in">
+              <span className="h-px w-8 md:w-10 bg-secondary-container shrink-0" aria-hidden="true" />
+              <span className="font-label-caps text-label-caps text-secondary-fixed tracking-[0.16em] md:tracking-[0.2em] whitespace-nowrap">
+                SINCE {settings.established} &middot; {settings.city.toUpperCase()}
               </span>
             </div>
 
-            {/* Mobile gets its own size/leading/tracking. From 640px up the
-                values below restore the text-display-hero token exactly
-                (56px / 64px / -0.02em), so desktop typography is unchanged. */}
-            <h1 className="font-display-hero text-[2.125rem] leading-[1.14] tracking-[-0.015em] sm:text-display-hero sm:leading-[64px] sm:tracking-[-0.02em] text-on-primary mb-space-sm sm:mb-space-md animate-fade-up">
-              Find a Place Worth{' '}
-              <span className="italic font-normal text-secondary-fixed">Calling Your Own.</span>
+            {/* Mobile keeps its own size/leading; from 768px up the values restore
+                the text-display-hero token exactly (56px / 64px / -0.02em). */}
+            <h1 className="hero-title font-display-hero text-[2.25rem] leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] sm:leading-[1.1] md:text-display-hero md:leading-[64px] md:tracking-[-0.02em] lg:text-[4rem] lg:leading-[1.06] text-white animate-fade-up">
+              Find a Place That
+              <br className="hidden sm:block" />{' '}
+              <span className="italic font-normal text-secondary-fixed">Feels Like Yours.</span>
             </h1>
 
-            <p className="font-body-lg text-[0.9375rem] leading-[1.6] sm:text-body-lg sm:leading-relaxed text-primary-fixed-dim max-w-[34ch] sm:max-w-2xl mb-space-lg sm:mb-space-xl animate-fade-up" style={{ animationDelay: '90ms' }}>
-              Residential and commercial properties for outright purchase and rental across Coimbatore,
-              Tirupur, Pollachi, Ooty, Erode and Palakkad — guided by consultants who have worked these
-              markets since {settings.established}.
+            <p
+              className="hero-lede mt-4 md:mt-6 font-body-lg text-[0.9375rem] leading-[1.65] sm:text-[1rem] md:text-body-lg md:leading-relaxed text-white/85 max-w-[34ch] md:max-w-[46ch] animate-fade-up"
+              style={{ animationDelay: '90ms' }}
+            >
+              Premium residential and commercial properties across Coimbatore,
+              Tirupur, Pollachi, Ooty, Erode and Palakkad.
             </p>
 
-            {/* On phones both CTAs share one full-width column so the
-                secondary action reads as intentional rather than stunted. */}
-            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-space-sm sm:gap-space-md animate-fade-up" style={{ animationDelay: '180ms' }}>
+            <div
+              className="hero-actions mt-7 md:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 animate-fade-up"
+              style={{ animationDelay: '180ms' }}
+            >
               <Link to="/properties" className="btn-bronze w-full sm:w-auto">
-                <span>Explore Curated Properties</span>
+                <span>Explore Properties</span>
                 <Icon name="arrow_forward" size={18} />
               </Link>
-              <a href={waGeneral} target="_blank" rel="noopener noreferrer" className="btn-whatsapp w-full sm:w-auto">
-                <Icon name="chat" size={20} />
-                <span className="hidden sm:inline">WhatsApp Private Desk ({settings.phone_display})</span>
-                <span className="sm:hidden">WhatsApp Us</span>
+              <a
+                href={waGeneral}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn w-full sm:w-auto border border-white/35 text-white px-space-lg py-3.5
+                           hover:bg-white hover:text-[#0b1220] hover:border-white transition-colors"
+              >
+                <Icon name="chat" size={18} />
+                <span>Talk to an Expert</span>
               </a>
             </div>
+
+            {/* Verified credibility only: founding year, asset mix, service area. */}
+            <ul
+              className="hero-trust mt-9 md:mt-12 flex flex-wrap items-center gap-x-5 gap-y-2.5 md:gap-x-8 border-t border-white/15 pt-5 md:pt-6 animate-fade-up"
+              style={{ animationDelay: '260ms' }}
+            >
+              {['Since 2008', 'Residential & Commercial', 'Coimbatore & Surrounding Areas'].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-secondary-container shrink-0" aria-hidden="true" />
+                  <span className="font-label-ui text-label-ui text-white/75 whitespace-nowrap">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>

@@ -221,6 +221,43 @@
   }
 }
 
+/*
+ * Hero — short-viewport compression.
+ *
+ * A phone held in landscape has roughly 375-432px of height, and the fixed
+ * header already claims 92-104px of it. At the standard rhythm the CTAs land
+ * below the fold, so the opening screen shows a headline and nothing to act
+ * on. This keys off viewport HEIGHT rather than width, so it only engages on
+ * genuinely short screens and never touches portrait phones or desktops.
+ *
+ * Width-based breakpoints cannot express this: 667x375 (landscape phone) and
+ * 667x900 (narrow window) are the same width but need different spacing.
+ */
+@media (max-height: 560px) and (min-width: 480px) {
+  /* Clears the 92px header on short screens without stranding the eyebrow
+     underneath it. */
+  .hero-shell {
+    padding-top: 7rem !important;
+    padding-bottom: 4.5rem !important;
+  }
+  .hero-title {
+    font-size: 2rem !important;
+    line-height: 1.1 !important;
+  }
+  .hero-lede {
+    margin-top: 0.5rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+  .hero-actions {
+    margin-top: 1.25rem !important;
+  }
+  .hero-trust {
+    margin-top: 1.25rem !important;
+    padding-top: 1rem !important;
+  }
+}
+
 /* Scroll-reveal: elements start hidden, .is-visible is added by IntersectionObserver */
 .reveal {
   opacity: 0;

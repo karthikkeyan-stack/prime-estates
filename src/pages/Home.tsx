@@ -8,6 +8,52 @@ import { SearchBar } from '../components/SearchBar';
 import { EnquiryForm } from '../components/EnquiryForm';
 import { Icon, Img } from '../components/ui';
 
+/**
+ * Hero background.
+ *
+ * NOTE ON THE SUPPLIED VIDEO — deliberately not used.
+ * The provided CloudFront MP4 was downloaded and inspected frame by frame
+ * (t=0.5s / 4s / 8s, scrims removed). It is not property footage: it is an
+ * abstract purple-violet light animation, 1708x1212 (1.41:1, nearly square)
+ * and 28 MB. Three problems made it unusable here:
+ *   1. It shows no real estate, so the opening would say nothing about the
+ *      business and would read as generic AI-generated motion graphics.
+ *   2. Violet fights the bronze/ivory brand palette.
+ *   3. 28 MB is a punishing first load on an Indian mobile connection.
+ * The optimised still below (AVIF/WebP/JPEG, 10-86 KB depending on width)
+ * shows an actual residence and is the LCP element. Swap in a real cinematic
+ * property clip here when one is available.
+ */
+function HeroBackdrop() {
+  return (
+    <>
+      <picture>
+        <source
+          type="image/avif"
+          srcSet="/media/r/hero-estate-400.avif 400w, /media/r/hero-estate-800.avif 800w, /media/r/hero-estate-1408.avif 1408w"
+          sizes="100vw"
+        />
+        <source
+          type="image/webp"
+          srcSet="/media/r/hero-estate-400.webp 400w, /media/r/hero-estate-800.webp 800w, /media/r/hero-estate-1408.webp 1408w"
+          sizes="100vw"
+        />
+        <img
+          src="/media/r/hero-estate-1408.jpg"
+          srcSet="/media/r/hero-estate-400.jpg 400w, /media/r/hero-estate-800.jpg 800w, /media/r/hero-estate-1408.jpg 1408w"
+          sizes="100vw"
+          alt="Contemporary residence at dusk with lit interiors and a reflection pool"
+          width={1408}
+          height={768}
+          decoding="async"
+          {...{ fetchpriority: 'high' }}
+          className="absolute inset-0 w-full h-full object-cover object-[68%_center] md:object-center"
+        />
+      </picture>
+    </>
+  );
+}
+
 export default function Home() {
   const { settings, tel, waGeneral } = useSettings();
 
@@ -53,91 +99,80 @@ export default function Home() {
 
       {/* ============ 1. HERO ============ */}
       {/*
-        The photograph is the hero. Earlier this image sat at opacity-40 under
-        mix-blend-luminosity and a full-bleed navy gradient, which stripped its
-        colour and dropped the visible area to ~32/255 brightness — the villa,
-        the warm interior lighting and the reflection pool were all invisible,
-        so the opening read as a flat navy rectangle.
+        Cinematic centred opening. The composition is centre-weighted rather
+        than left-aligned, so the scrims are radial/vertical instead of
+        directional — the architecture stays visible at the edges of the
+        frame while the middle stays dark enough to read against.
 
-        Now the image renders at full strength and legibility comes from a
-        directional scrim: opaque at the left edge where the text sits, clear
-        on the right where the architecture is. Copy stays above 4.5:1 while
-        the property stays visible.
+        Background strategy (see HeroBackdrop below): every visitor gets the
+        optimised still immediately; the 28 MB video is only attached on
+        pointer-fine, wide, non-reduced-motion screens after the poster has
+        painted. Phones never download it.
       */}
-      <section className="relative w-full -mt-[5.75rem] md:-mt-[7.25rem] overflow-hidden bg-primary-container">
-        <picture>
-          <source
-            type="image/avif"
-            srcSet="/media/r/hero-estate-400.avif 400w, /media/r/hero-estate-800.avif 800w, /media/r/hero-estate-1408.avif 1408w"
-            sizes="100vw"
-          />
-          <source
-            type="image/webp"
-            srcSet="/media/r/hero-estate-400.webp 400w, /media/r/hero-estate-800.webp 800w, /media/r/hero-estate-1408.webp 1408w"
-            sizes="100vw"
-          />
-          <img
-            src="/media/r/hero-estate-1408.jpg"
-            srcSet="/media/r/hero-estate-400.jpg 400w, /media/r/hero-estate-800.jpg 800w, /media/r/hero-estate-1408.jpg 1408w"
-            sizes="100vw"
-            alt="Contemporary residence at dusk with lit interiors and a reflection pool"
-            width={1408}
-            height={768}
-            decoding="async"
-            {...{ fetchpriority: 'high' }}
-            className="absolute inset-0 w-full h-full object-cover object-[68%_center] md:object-center"
-          />
-        </picture>
+      <section className="relative w-full -mt-[5.75rem] md:-mt-[7.25rem] overflow-hidden bg-charcoal">
+        <HeroBackdrop />
 
         {/*
-          Two scrims. Below 1024px the copy spans most of the frame and the
-          villa's lit windows sit directly behind it, so the vertical scrim is
-          heavy — measured contrast against the brightest backdrop pixel is
-          otherwise as low as 1.3:1. From 1024px the text occupies only the
-          left column, so the scrim lightens and the architecture opens up.
+          Scrims tuned for centred text. The vertical pass darkens the top
+          (behind the transparent navbar) and the middle band where the
+          headline sits; the radial pass keeps the corners open so the
+          building and sky still read as a photograph, not a dark rectangle.
         */}
         <div
-          className="absolute inset-0 bg-gradient-to-b from-[#0b1220]/94 via-[#0b1220]/86 to-[#0b1220]/94
-                     lg:from-[#0b1220]/80 lg:via-[#0b1220]/45 lg:to-[#0b1220]/85"
+          className="absolute inset-0 bg-gradient-to-b from-charcoal/80 via-charcoal/55 to-charcoal/82
+                     lg:from-charcoal/72 lg:via-charcoal/45 lg:to-charcoal/78"
           aria-hidden="true"
         />
-        {/* Horizontal scrim: keeps the right side open so the building reads. */}
+        {/* Centre pool: the copy column is centred, so the darkest part of the
+            scrim tracks it. Measured against the brightest backdrop pixel
+            behind each text block, this keeps every hero string >= 4.5:1
+            while the corners stay light enough to read as a photograph. */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-[#0b1220]/85 via-[#0b1220]/60 to-[#0b1220]/25
-                     lg:from-[#0b1220]/94 lg:via-[#0b1220]/62 lg:to-transparent"
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(82% 78% at 50% 50%, rgba(23,21,19,0.66) 0%, rgba(23,21,19,0.46) 62%, rgba(23,21,19,0) 100%)',
+          }}
           aria-hidden="true"
         />
 
         {/* Bottom padding leaves room for the search card, which pulls up into
             the hero by 4rem on phones / 5rem from 768px (see next section). */}
-        <div className="hero-shell relative z-10 shell pt-[6.5rem] md:pt-[10rem] pb-28 md:pb-36">
-          <div className="max-w-[36rem] lg:max-w-[40rem]">
-            {/* Eyebrow: a hairline rule instead of a pill — quieter, more editorial. */}
-            <div className="flex items-center gap-3 mb-5 md:mb-7 animate-fade-in">
-              <span className="h-px w-8 md:w-10 bg-secondary-container shrink-0" aria-hidden="true" />
-              <span className="font-label-caps text-label-caps text-secondary-fixed tracking-[0.16em] md:tracking-[0.2em] whitespace-nowrap">
-                SINCE {settings.established} &middot; {settings.city.toUpperCase()}
+        <div className="hero-shell relative z-10 shell pt-[7rem] md:pt-[10.5rem] pb-28 md:pb-36">
+          <div className="max-w-[46rem] mx-auto text-center">
+            {/* Eyebrow pill: founding year + what the firm actually is. */}
+            <div className="flex justify-center mb-6 md:mb-8 animate-fade-in">
+              <span
+                className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.07]
+                           py-1.5 pl-1.5 pr-4 backdrop-blur-sm"
+              >
+                <span className="rounded-full bg-bronze px-2.5 py-1 font-label-caps text-label-caps font-semibold text-white tabular">
+                  {settings.established}
+                </span>
+                <span className="font-label-ui text-label-ui text-white/90 whitespace-nowrap">
+                  Real Estate Consultants &amp; Developers
+                </span>
               </span>
             </div>
 
             {/* Mobile keeps its own size/leading; from 768px up the values restore
                 the text-display-hero token exactly (56px / 64px / -0.02em). */}
-            <h1 className="hero-title font-display-hero text-[2.25rem] leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] sm:leading-[1.1] md:text-display-hero md:leading-[64px] md:tracking-[-0.02em] lg:text-[4rem] lg:leading-[1.06] text-white animate-fade-up">
-              Find a Place That
+            <h1 className="hero-title font-display-hero text-[2.25rem] leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] sm:leading-[1.1] md:text-display-hero md:leading-[64px] md:tracking-[-0.02em] lg:text-[4.25rem] lg:leading-[1.04] text-white animate-fade-up">
+              Find a place that
               <br className="hidden sm:block" />{' '}
-              <span className="italic font-normal text-secondary-fixed">Feels Like Yours.</span>
+              feels like <span className="italic font-normal">yours.</span>
             </h1>
 
             <p
-              className="hero-lede mt-4 md:mt-6 font-body-lg text-[0.9375rem] leading-[1.65] sm:text-[1rem] md:text-body-lg md:leading-relaxed text-white/85 max-w-[34ch] md:max-w-[46ch] animate-fade-up"
+              className="hero-lede mx-auto mt-4 md:mt-6 font-body-lg text-[0.9375rem] leading-[1.65] sm:text-[1rem] md:text-body-lg md:leading-relaxed text-white/85 max-w-[38ch] md:max-w-[56ch] animate-fade-up"
               style={{ animationDelay: '90ms' }}
             >
-              Premium residential and commercial properties across Coimbatore,
-              Tirupur, Pollachi, Ooty, Erode and Palakkad.
+              Premium residential and commercial properties across Coimbatore
+              and surrounding locations.
             </p>
 
             <div
-              className="hero-actions mt-7 md:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 animate-fade-up"
+              className="hero-actions mt-7 md:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 animate-fade-up"
               style={{ animationDelay: '180ms' }}
             >
               <Link to="/properties" className="btn-bronze w-full sm:w-auto">
@@ -148,8 +183,8 @@ export default function Home() {
                 href={waGeneral}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn w-full sm:w-auto border border-white/35 text-white px-space-lg py-3.5
-                           hover:bg-white hover:text-[#0b1220] hover:border-white transition-colors"
+                className="btn w-full sm:w-auto border border-white/45 bg-charcoal/45 backdrop-blur-sm text-white
+                           px-space-lg py-3.5 hover:bg-white hover:text-charcoal hover:border-white transition-colors"
               >
                 <Icon name="chat" size={18} />
                 <span>Talk to an Expert</span>
@@ -158,13 +193,13 @@ export default function Home() {
 
             {/* Verified credibility only: founding year, asset mix, service area. */}
             <ul
-              className="hero-trust mt-9 md:mt-12 flex flex-wrap items-center gap-x-5 gap-y-2.5 md:gap-x-8 border-t border-white/15 pt-5 md:pt-6 animate-fade-up"
+              className="hero-trust mt-9 md:mt-12 flex flex-wrap justify-center items-center gap-x-5 gap-y-2.5 md:gap-x-8 border-t border-white/15 pt-5 md:pt-6 animate-fade-up"
               style={{ animationDelay: '260ms' }}
             >
               {['Since 2008', 'Residential & Commercial', 'Coimbatore & Surrounding Areas'].map((item) => (
                 <li key={item} className="flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-secondary-container shrink-0" aria-hidden="true" />
-                  <span className="font-label-ui text-label-ui text-white/75 whitespace-nowrap">{item}</span>
+                  <span className="w-1 h-1 rounded-full bg-bronze-300 shrink-0" aria-hidden="true" />
+                  <span className="font-label-ui text-label-ui text-white whitespace-nowrap">{item}</span>
                 </li>
               ))}
             </ul>

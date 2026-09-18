@@ -73,10 +73,21 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* The transparent treatment only applies at the top of the homepage, where
+     the hero image sits behind the bar. */
+  const overHero = location.pathname === '/' && !scrolled;
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      {/* Announcement rail — established credibility + direct line */}
-      <div className="bg-primary-container text-on-primary py-space-xs px-gutter-mobile lg:px-gutter-desktop">
+      {/* Announcement rail — established credibility + direct line.
+          Over the hero it goes transparent so the whole header floats on the
+          image; the height is unchanged either way, which keeps it in step
+          with the hero's negative margin and the <main> offset in App. */}
+      <div
+        className={`text-on-primary py-space-xs px-gutter-mobile lg:px-gutter-desktop transition-colors duration-300 ${
+          overHero ? 'bg-black/25 backdrop-blur-[2px]' : 'bg-primary-container'
+        }`}
+      >
         <div className="max-w-shell mx-auto flex items-center justify-between gap-3 font-label-caps text-label-caps tracking-[0.06em] sm:tracking-widest">
           <div className="flex items-center gap-space-sm min-w-0 flex-1 sm:flex-none">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-secondary-container shrink-0" aria-hidden="true" />
@@ -102,14 +113,22 @@ export function Header() {
         </div>
       </div>
 
-      {/* Main bar */}
+      {/* Main bar.
+          On the homepage the bar sits directly over the cinematic hero, so
+          until the user scrolls it is transparent with white contents; from
+          8px of scroll it resolves into the normal ivory bar. Every other
+          route keeps the solid bar at all times. */}
       <div
-        className={`h-[4.25rem] md:h-20 backdrop-blur-xl transition-shadow ${
-          scrolled ? 'bg-surface-bright/95 shadow-[0_1px_12px_rgba(0,0,0,0.07)]' : 'bg-surface-bright/90 shadow-[0_1px_8px_rgba(0,0,0,0.04)]'
+        className={`h-[4.25rem] md:h-20 transition-[background-color,box-shadow] duration-300 ${
+          overHero
+            ? 'bg-transparent'
+            : scrolled
+              ? 'bg-surface-bright/95 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.07)]'
+              : 'bg-surface-bright/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]'
         }`}
       >
         <div className="max-w-shell h-full mx-auto px-gutter-mobile lg:px-gutter-desktop flex items-center justify-between gap-space-md">
-          <Logo />
+          <Logo inverse={overHero} />
 
           <nav className="hidden xl:flex items-center gap-space-lg" aria-label="Primary">
             {NAV.map((item) => (
@@ -117,13 +136,23 @@ export function Header() {
                 key={item.label}
                 to={item.to}
                 end={item.to === '/properties'}
-                className={({ isActive }) =>
-                  `font-label-ui text-label-ui transition-colors hover:text-on-surface relative py-1 ${
-                    isActive && location.search === (item.to.split('?')[1] ? `?${item.to.split('?')[1]}` : '')
-                      ? 'text-on-surface font-semibold after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:bg-secondary after:rounded-full'
+                className={({ isActive }) => {
+                  const active =
+                    isActive &&
+                    location.search === (item.to.split('?')[1] ? `?${item.to.split('?')[1]}` : '');
+                  const underline =
+                    'after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:rounded-full';
+                  if (overHero) {
+                    return `font-label-ui text-label-ui transition-colors relative py-1 hover:text-white ${
+                      active ? `text-white font-semibold ${underline} after:bg-bronze-300` : 'text-white/80'
+                    }`;
+                  }
+                  return `font-label-ui text-label-ui transition-colors relative py-1 hover:text-on-surface ${
+                    active
+                      ? `text-on-surface font-semibold ${underline} after:bg-secondary`
                       : 'text-on-surface-variant'
-                  }`
-                }
+                  }`;
+                }}
               >
                 {item.label}
               </NavLink>
@@ -135,33 +164,44 @@ export function Header() {
               href={waGeneral}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg
-                         bg-on-tertiary-fixed-variant text-on-tertiary font-label-ui text-label-ui
-                         hover:bg-on-tertiary-fixed transition-colors"
+              className={`hidden sm:inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg
+                          font-label-ui text-label-ui transition-colors ${
+                            overHero
+                              ? 'bg-white/95 text-charcoal hover:bg-white'
+                              : 'bg-on-tertiary-fixed-variant text-on-tertiary hover:bg-on-tertiary-fixed'
+                          }`}
             >
               <Icon name="chat" size={18} />
               <span>WhatsApp</span>
             </a>
             <Link
-              to="/contact"
-              className="hidden sm:inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg
-                         bg-primary-container text-on-primary font-title-md text-title-md
-                         hover:bg-[#2a3550] transition-colors"
+              to="/properties"
+              className={`hidden sm:inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg
+                          font-title-md text-title-md transition-colors ${
+                            overHero
+                              ? 'bg-bronze text-white hover:bg-bronze-600'
+                              : 'bg-primary-container text-on-primary hover:bg-[#2a3550]'
+                          }`}
             >
-              <span>Enquire Now</span>
+              <span>View Properties</span>
               <Icon name="north_east" size={16} />
             </Link>
             <a
               href={tel}
-              className="sm:hidden w-10 h-10 grid place-items-center rounded-lg bg-primary-container text-on-primary"
+              className={`sm:hidden w-10 h-10 grid place-items-center rounded-lg transition-colors ${
+                overHero ? 'bg-white/95 text-charcoal' : 'bg-primary-container text-on-primary'
+              }`}
               aria-label={`Call ${settings.phone_display}`}
             >
               <Icon name="call" size={20} />
             </a>
             <button
               onClick={() => setOpen(true)}
-              className="xl:hidden w-10 h-10 grid place-items-center rounded-lg border border-outline-variant
-                         text-on-surface hover:bg-surface-container transition-colors"
+              className={`xl:hidden w-10 h-10 grid place-items-center rounded-lg border transition-colors ${
+                overHero
+                  ? 'border-white/35 text-white hover:bg-white/10'
+                  : 'border-outline-variant text-on-surface hover:bg-surface-container'
+              }`}
               aria-label="Open menu"
               aria-expanded={open}
             >

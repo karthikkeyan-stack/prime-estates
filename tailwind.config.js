@@ -54,6 +54,26 @@ export default {
         'on-primary-fixed-variant': '#404758',
         'on-secondary-fixed-variant': '#763300',
         secondary: '#9b4500',
+
+        /* ---- Bronze brand scale ----------------------------------------
+           #A67C52 is the requested brand bronze, but it only reaches
+           3.40:1 on warm ivory and 3.73:1 under white text — both below
+           the 4.5:1 WCAG AA threshold for normal-size text. Rather than
+           drop the colour or ship inaccessible text, the hue is kept and
+           split into a scale, each step used where it actually passes:
+
+             bronze      #A67C52  brand hue - large display text, rules,
+                                  borders, decorative accents (AA-large 3.0)
+             bronze-600  #8A6440  solid buttons, white text  -> 5.28:1
+             bronze-700  #6F4E2F  small text / links on ivory -> 6.82:1
+             bronze-300  #C39A6B  bronze ON the dark charcoal -> 7.07:1
+        */
+        bronze: '#a67c52',
+        'bronze-300': '#c39a6b',
+        'bronze-600': '#8a6440',
+        'bronze-700': '#6f4e2f',
+        /* Deep neutral used behind cinematic imagery and for dark buttons. */
+        charcoal: '#171513',
       },
       borderRadius: {
         DEFAULT: '0.25rem',

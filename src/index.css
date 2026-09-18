@@ -83,9 +83,12 @@
     @apply btn bg-primary-container text-on-primary px-space-lg py-3.5 hover:-translate-y-px
            hover:shadow-lvl2 active:translate-y-0;
   }
+  /* Brand bronze button. Uses bronze-600 (#8A6440) rather than the raw brand
+     #A67C52 because white text on #A67C52 is only 3.73:1 — below AA. At
+     bronze-600 the same hue reaches 5.28:1 and the button still reads bronze. */
   .btn-bronze {
-    @apply btn bg-secondary text-on-secondary px-space-lg py-3.5 shadow-lvl1
-           hover:bg-on-secondary-container hover:-translate-y-px active:translate-y-0;
+    @apply btn bg-bronze-600 text-white px-space-lg py-3.5 shadow-lvl1
+           hover:bg-bronze-700 hover:-translate-y-px active:translate-y-0;
   }
   .btn-whatsapp {
     @apply btn bg-on-tertiary-fixed-variant text-on-tertiary px-space-lg py-3.5 shadow-lvl1
